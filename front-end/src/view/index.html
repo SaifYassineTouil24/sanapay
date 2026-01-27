@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="SanaPay – Envoyez, recevez et suivez vos paiements en toute sécurité. Gestion des factures et paiements en une seule interface." />
+  <title>SanaPay | Gestion des factures et paiements</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+/>
+
+
+  <link rel="stylesheet" href="/front-end/src/css/style.css" />
+  <link rel="icon" type="image/png" href="/front-end/assets/Frame 1 (7).png" />
+</head>
+
+<body>
+
+  <header class="topbar" id="topbar">
+    <div class="container nav">
+      <a href="/" class="brand">
+        <img src="/front-end/assets/logo.png" alt="SanaPay" />
+      </a>
+
+      <button class="nav-toggle" aria-label="Menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+
+      <nav class="nav-links" aria-label="Navigation principale">
+        <a href="#features" class="nav-link">Fonctionnalités</a>
+        <a href="#about" class="nav-link">À propos</a>
+        <a href="#help" class="nav-link">Aide</a>
+        <a href="login.html" class="btn-outline">Connexion</a>
+        <a href="register.html" class="btn-solid">Ouvrir un compte</a>
+      </nav>
+    </div>
+    
+  </header>
+
+  <main>
+    <section class="hero-fintech" aria-labelledby="hero-title">
+      <div class="hero-left">
+        <span class="tag">Plateforme de paiement</span>
+        <h1 id="hero-title">
+          La façon moderne de<br />
+          gérer vos paiements<br />
+          et vos factures
+        </h1>
+        <p>
+          SanaPay vous permet d’envoyer, recevoir et suivre vos paiements
+          en toute sécurité, depuis une seule interface.
+        </p>
+        <div class="hero-actions">
+          <a href="register.html" class="btn-main">Créer un compte</a>
+          <a href="#features" class="btn-secondary">Voir les fonctionnalités</a>
+        </div>
+      </div>
+      <div class="hero-right">
+        <div class="hero-image-wrapper">
+          <img src="/front-end/assets/Capture.PNG" alt="Interface SanaPay – Paiements sécurisés" loading="eager" />
+        </div>
+      </div>
+    </section>
+<section class="stats" aria-label="Chiffres clés">
+  <div class="container stats-grid">
+
+    <div class="stat-item">
+      <i class="fa-solid fa-shield-halved stat-icon"></i>
+      <div class="stat-number">
+        <span class="stat-value" data-stat="100">0</span>
+        <span class="stat-suffix">%</span>
+      </div>
+      <span class="stat-label">Sécurisé</span>
+    </div>
+
+    <div class="stat-item">
+      <i class="fa-solid fa-clock stat-icon"></i>
+      <div class="stat-number">
+        <span class="stat-value" data-stat="24">0</span>
+        <span class="stat-suffix">/7</span>
+      </div>
+      <span class="stat-label">Disponible</span>
+    </div>
+
+    <div class="stat-item">
+      <i class="fa-solid fa-wallet stat-icon"></i>
+      <div class="stat-number">
+        <span class="stat-value" data-stat="0">0</span>
+        <span class="stat-suffix">€</span>
+      </div>
+      <span class="stat-label">Frais d’ouverture</span>
+    </div>
+
+  </div>
+</section>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const stats = document.querySelectorAll(".stat-value");
+
+  stats.forEach(stat => {
+    const target = +stat.dataset.stat;
+    const duration = 1200;
+    const stepTime = Math.max(Math.floor(duration / target), 20);
+
+    let current = 0;
+
+    const timer = setInterval(() => {
+      current++;
+      stat.textContent = current;
+
+      if (current >= target) {
+        stat.textContent = target;
+        clearInterval(timer);
+      }
+    }, stepTime);
+  });
+});
+</script>
+
+    <section id="features" class="features">
+      <div class="container">
+        <h2>Fonctionnalités principales</h2>
+        <p class="features-sub">Tout ce dont vous avez besoin pour gérer vos finances au quotidien.</p>
+        <div class="features-grid">
+          <article class="feature-card">
+            <div class="feature-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                <polyline points="14 2 14 8 20 8" />
+                <line x1="16" y1="13" x2="8" y2="13" />
+                <line x1="16" y1="17" x2="8" y2="17" />
+                <polyline points="10 9 9 9 8 9" />
+              </svg>
+            </div>
+            <h3>Gestion des factures</h3>
+            <p>Création, modification et suivi des factures clients en quelques clics.</p>
+          </article>
+          <article class="feature-card">
+            <div class="feature-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
+                <line x1="1" y1="10" x2="23" y2="10" />
+                <path d="M12 15h.01" />
+                <path d="M7 15h.01" />
+                <path d="M17 15h.01" />
+              </svg>
+            </div>
+            <h3>Paiements sécurisés</h3>
+            <p>Simulation de paiements avec historique détaillé et traçabilité complète.</p>
+          </article>
+          <article class="feature-card">
+            <div class="feature-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="20" x2="18" y2="10" />
+                <line x1="12" y1="20" x2="12" y2="4" />
+                <line x1="6" y1="20" x2="6" y2="14" />
+              </svg>
+            </div>
+            <h3>Tableau de bord</h3>
+            <p>Vue globale des factures payées et impayées pour piloter votre activité.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="about" class="about">
+      <div class="container about-inner">
+        <div class="about-text">
+          <h2>À propos de SanaPay</h2>
+          <p>
+            SanaPay est une plateforme conçue pour simplifier la gestion des factures et des paiements
+            des professionnels et des particuliers. Un outil unique pour tout centraliser,
+            sans paperasse et en toute sérénité.
+          </p>
+          <a href="register.html" class="btn-main">Découvrir SanaPay</a>
+        </div>
+        <div class="about-visual" aria-hidden="true">
+          <div class="about-blob"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="help" class="help">
+      <div class="container">
+        <h2>Besoin d’aide ?</h2>
+        <p class="help-lead">Consultez notre centre d’aide ou contactez-nous.</p>
+        <div class="help-grid">
+          <a href="login.html" class="help-card">
+            <span class="help-icon">?</span>
+            <h3>FAQ</h3>
+            <p>Réponses aux questions fréquentes.</p>
+          </a>
+          <a href="login.html" class="help-card">
+            <span class="help-icon">✉</span>
+            <h3>Contact</h3>
+            <p>Échangez avec notre équipe support.</p>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <section class="intro">
+      <h2>Tout est dans l’application <span>SanaPay</span></h2>
+      <p>
+        Envoyez et recevez des paiements facilement et en toute sécurité,
+        le tout depuis un seul endroit. Téléchargez l’application ou
+        inscrivez-vous gratuitement.
+      </p>
+      <div class="qr">
+        <img src="/front-end/assets/qrcode.png" alt="QR Code – Télécharger SanaPay" />
+        <a href="login.html" class="qr-text">Télécharger l’application</a>
+      </div>
+    </section>
+
+    <section class="cta">
+      <div class="container">
+        <h2>Prêt à simplifier vos paiements ?</h2>
+        <p>Ouvrez un compte en quelques minutes, sans engagement.</p>
+        <a href="register.html" class="btn-main btn-cta">Créer un compte gratuit</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+  <div class="container footer-grid">
+
+    <!-- Brand / Description -->
+    <div class="footer-col footer-brand">
+      <img src="/front-end/assets/logo.png" alt="SanaPay" class="footer-logo" />
+      <p>
+        SanaPay est une plateforme de paiement moderne qui simplifie
+        vos transactions quotidiennes en toute sécurité.
+      </p>
+    </div>
+
+    <!-- Links -->
+    <div class="footer-col">
+      <h4>Nos solutions</h4>
+      <ul>
+        <li><a href="#features">Fonctionnalités</a></li>
+        <li><a href="#pricing">Tarification</a></li>
+        <li><a href="#network">Réseau</a></li>
+        <li><a href="#news">Actualités</a></li>
+      </ul>
+    </div>
+
+    <!-- Support -->
+    <div class="footer-col">
+      <h4>Espace client</h4>
+      <ul>
+        <li><a href="login.html">Connexion</a></li>
+        <li><a href="register.html">Inscription</a></li>
+        <li><a href="#help">Centre d’aide</a></li>
+        <li><a href="#privacy">Politique de confidentialité</a></li>
+      </ul>
+    </div>
+
+    <!-- Contact -->
+    <div class="footer-col">
+      <h4>Contactez-nous</h4>
+      <ul class="footer-contact">
+        <li>📍 Casablanca, Maroc</li>
+        <li>📞 +212 5 22 00 00 00</li>
+        <li>✉️ contact@sanapay.com</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <!-- Social + Copyright -->
+  <div class="footer-bottom">
+    <div class="footer-social">
+      <a href="#" aria-label="Facebook">f</a>
+      <a href="#" aria-label="LinkedIn">in</a>
+      <a href="#" aria-label="X">X</a>
+      <a href="#" aria-label="Instagram">⌁</a>
+    </div>
+    <p>© 2026 SanaPay – Tous droits réservés</p>
+  </div>
+</footer>
+
+  <script type="module" src="/front-end/src/controller/index.js"></script>
+ 
+
+</body>
+</html>

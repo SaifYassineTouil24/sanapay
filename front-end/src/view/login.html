@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Connexion – SanaPay</title>
+  <meta name="description" content="Connectez-vous à votre espace client SanaPay pour gérer vos paiements et vos factures en toute sécurité.">
+
+  <link rel="icon" type="image/png" href="/front-end/assets/Frame 1 (7).png">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/front-end/src/css/style.css">
+</head>
+
+<body class="auth-page">
+  <main>
+    <!-- ❗ FORMULAIRE MODIFIÉ -->
+    <form class="login-container" id="loginForm" autocomplete="on">
+
+      <div class="login-logo">
+        <img src="/front-end/assets/logo.png" alt="Logo SanaPay">
+      </div>
+
+      <h1 class="login-title">Connectez-vous à votre compte</h1>
+      <div class="login-subtitle">
+        Accédez à votre espace personnel en toute sécurité
+      </div>
+
+      <!-- Email -->
+      <div class="form-group">
+        <label for="login-id" class="login-label">
+          Email
+        </label>
+        <input
+          id="login-id"
+          class="login-input"
+          type="email"
+          placeholder="Entrez votre email"
+          required
+        >
+      </div>
+
+      <!-- Mot de passe -->
+      <div class="form-group">
+        <label for="login-password" class="login-label">
+          Mot de passe
+        </label>
+        <input
+          id="login-password"
+          class="login-input"
+          type="password"
+          placeholder="Entrez votre mot de passe"
+          required
+        >
+      </div>
+
+      <a href="#" class="forgot-link">
+        Email ou mot de passe oublié&nbsp;?
+      </a>
+
+      <button type="submit" class="login-btn">
+        Se connecter
+      </button>
+
+      <div class="login-separator">ou</div>
+
+      <button
+        type="button"
+        class="register-btn"
+        onclick="window.location.href='register.html'">
+        Ouvrir un compte
+      </button>
+
+      <!-- Message retour backend -->
+      <p id="loginMessage" style="margin-top: 15px; text-align: center;"></p>
+
+    </form>
+  </main>
+
+  <!-- JS -->
+  <script src="/front-end/src/controller/login.js"></script>
+</body>
+</html>

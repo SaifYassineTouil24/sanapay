@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Mon compte – SanaPay</title>
+  <link rel="stylesheet" href="/front-end/src/css/style.css">
+</head>
+
+<body>
+  <main class="account-page">
+
+    <h1 id="welcome"></h1>
+
+    <p>Vous êtes connecté à votre espace personnel SanaPay.</p>
+
+    <button onclick="logout()">Déconnexion</button>
+
+  </main>
+
+  <script>
+    // Vérifier si l'utilisateur est connecté
+    const email = localStorage.getItem('userEmail');
+
+    if (!email) {
+      // pas connecté → retour login
+      window.location.href = 'login.html';
+    } else {
+      document.getElementById('welcome').innerText =
+        'Bienvenue ' + email;
+    }
+
+    function logout() {
+      localStorage.removeItem('userEmail');
+      window.location.href = 'login.html';
+    }
+  </script>
+</body>
+</html>
