@@ -1,28 +1,62 @@
+if ('scrollRestoration' in history) {
+  history.scrollRestoration = 'manual';
+}
 
-  const email = document.getElementById('login-id').value;
-  const password = document.getElementById('login-password').value;
+window.addEventListener("load", () => {
+  window.scrollTo(0, 0);
+});
 
-  fetch('http://localhost:3000/auth/login', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      email: email,
-      password: password,
-    }),
-  })
-    .then((response) => response.text())
-    .then((data) => {
-      if (data === 'Connexion réussie') {
-        // redirection simple (niveau prof)
-        window.location.href = 'index.html';
-      } else {
-        alert(data);
-      }
-    })
-    .catch((error) => {
-      console.error('Erreur:', error);
-      alert('Erreur de connexion au serveur');
-    });
+const navLogin = document.getElementById("nav-login");
+
+navLogin.addEventListener("click", handleLogin);
+
+function handleLogin(e) {
+  e.preventDefault(); // ⛔ bloque la redirection automatique
+
+  navLogin.textContent = "Loading...";
+
+  setTimeout(() => {
+    window.location.href = "./login.html";
+  }, 500);
+}
+
+const navRegister = document.getElementById("nav-register");
+navRegister.addEventListener("click", handleregister);
+
+function handleregister(e) {
+  e.preventDefault(); // ⛔ bloque la redirection automatique
+
+  navRegister.textContent = "Loading...";
+
+  setTimeout(() => {
+    window.location.href = "./register.html";
+  }, 500);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const logoImg = document.querySelector(".brand img");
+logoLink.addEventListener("click", (e) => {
+  e.preventDefault();
+  window.location.reload();
+});
+
 

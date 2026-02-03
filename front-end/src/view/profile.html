@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profil - SanaPay</title>
+    <link rel="stylesheet" href="/front-end/src/css/style1.css">
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>💳 SanaPay</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="dashboard.html">📊 Dashboard</a>
+                <a href="bills.html">📝 Factures</a>
+                <a href="analytics.html">📈 Analytics</a>
+                <a href="profile.html" class="active">👤 Profil</a>
+            </nav>
+            <div class="sidebar-footer">
+                <button onclick="logout()" class="btn btn-outline btn-block">Déconnexion</button>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <header class="page-header">
+                <h1>Mon Profil</h1>
+            </header>
+
+            <!-- Profile Info Card -->
+            <div class="card">
+                <h3>Informations Personnelles</h3>
+                <form id="profileForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="firstName">Prénom</label>
+                            <input 
+                                type="text" 
+                                id="firstName" 
+                                required 
+                                minlength="2"
+                                maxlength="50">
+                        </div>
+                        <div class="form-group">
+                            <label for="lastName">Nom</label>
+                            <input 
+                                type="text" 
+                                id="lastName" 
+                                required 
+                                minlength="2"
+                                maxlength="50">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input 
+                            type="email" 
+                            id="email" 
+                            disabled
+                            style="background-color: var(--light); cursor: not-allowed;">
+                        <small>L'email ne peut pas être modifié</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Téléphone</label>
+                        <input 
+                            type="tel" 
+                            id="phone" 
+                            placeholder="+212600000000">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Mettre à jour le profil</button>
+                    <div id="profile-message" style="margin-top: 1rem;"></div>
+                </form>
+            </div>
+
+            <!-- Change Password Card -->
+            <div class="card">
+                <h3>Changer le Mot de Passe</h3>
+                <form id="passwordForm">
+                    <div class="form-group">
+                        <label for="oldPassword">Mot de passe actuel</label>
+                        <input 
+                            type="password" 
+                            id="oldPassword" 
+                            required
+                            autocomplete="current-password">
+                    </div>
+                    <div class="form-group">
+                        <label for="newPassword">Nouveau mot de passe</label>
+                        <input 
+                            type="password" 
+                            id="newPassword" 
+                            required 
+                            minlength="8"
+                            autocomplete="new-password">
+                        <small>Min 8 caractères avec majuscule, minuscule et chiffre</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirmPassword">Confirmer le nouveau mot de passe</label>
+                        <input 
+                            type="password" 
+                            id="confirmPassword" 
+                            required 
+                            minlength="8"
+                            autocomplete="new-password">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Changer le mot de passe</button>
+                    <div id="password-message" style="margin-top: 1rem;"></div>
+                </form>
+            </div>
+
+            <!-- Wallet Info Card -->
+            <div class="card">
+                <h3>Informations du Portefeuille</h3>
+                <div style="display: grid; gap: 1rem;">
+                    <div>
+                        <label style="font-weight: 600; color: #718096; font-size: 0.9rem;">Numéro de Wallet</label>
+                        <p style="font-size: 1.1rem; font-weight: 600; color: var(--primary);" id="walletNumber">-</p>
+                    </div>
+                    <div>
+                        <label style="font-weight: 600; color: #718096; font-size: 0.9rem;">Solde Actuel</label>
+                        <p style="font-size: 1.5rem; font-weight: bold; color: var(--success);" id="walletBalance">0 MAD</p>
+                    </div>
+                    <div>
+                        <label style="font-weight: 600; color: #718096; font-size: 0.9rem;">Devise</label>
+                        <p style="font-size: 1.1rem;" id="walletCurrency">MAD</p>
+                    </div>
+                    <div>
+                        <label style="font-weight: 600; color: #718096; font-size: 0.9rem;">Statut</label>
+                        <p style="font-size: 1.1rem;">
+                            <span id="walletStatus" class="bill-status paid">ACTIVE</span>
+                        </p>
+                    </div>
+                    <div class="form-row">
+                        <div>
+                            <label style="font-weight: 600; color: #718096; font-size: 0.9rem;">Total Déposé</label>
+                            <p style="font-size: 1.1rem; color: var(--success);" id="totalDeposited">0 MAD</p>
+                        </div>
+                        <div>
+                            <label style="font-weight: 600; color: #718096; font-size: 0.9rem;">Total Retiré</label>
+                            <p style="font-size: 1.1rem; color: var(--danger);" id="totalWithdrawn">0 MAD</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Account Settings Card -->
+            <div class="card">
+                <h3>Paramètres du Compte</h3>
+                <div style="display: grid; gap: 1rem;">
+                    <div>
+                        <label style="font-weight: 600; color: #718096; font-size: 0.9rem;">Membre depuis</label>
+                        <p id="memberSince">-</p>
+                    </div>
+                    <div>
+                        <label style="font-weight: 600; color: #718096; font-size: 0.9rem;">Email Vérifié</label>
+                        <p id="emailVerified">
+                            <span class="bill-status pending">Non vérifié</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="../js/api.js"></script>
+    <script src="../js/profile.js"></script>
+</body>
+</html>

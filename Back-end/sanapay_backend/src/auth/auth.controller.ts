@@ -1,5 +1,6 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Post, Get, Req, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('auth')
 export class AuthController {
@@ -13,5 +14,12 @@ export class AuthController {
   @Post('login')
   login(@Body() body) {
     return this.authService.login(body.email, body.password);
+  }
+
+  // 🔐 ROUTE PROTÉGÉE
+  @UseGuards(AuthGuard('jwt'))
+  @Get('me')
+  me(@Req() req) {
+    return req.user;
   }
 }

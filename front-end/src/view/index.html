@@ -11,35 +11,33 @@
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link
   rel="stylesheet"
-  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
-/>
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
 
 
   <link rel="stylesheet" href="/front-end/src/css/style.css" />
-  <link rel="icon" type="image/png" href="/front-end/assets/Frame 1 (7).png" />
+  <link rel="icon" type="image/png" href="/front-end/assets/favicon.png" />
 </head>
 
 <body>
 
   <header class="topbar" id="topbar">
     <div class="container nav">
-      <a href="/" class="brand">
+      <a href="index.html" class="brand">
         <img src="/front-end/assets/logo.png" alt="SanaPay" />
       </a>
 
       <button class="nav-toggle" aria-label="Menu" aria-expanded="false">
         <span></span><span></span><span></span>
       </button>
+     <nav class="nav-links" aria-label="Navigation principale">
+           <a href="#features" id="nav-features" class="nav-link">Fonctionnalités</a>
+           <a href="#about" id="nav-about" class="nav-link">À propos</a>
+           <a href="#help" id="nav-help" class="nav-link">Aide</a>
+           <a href="login.html" id="nav-login" class="btn-outline">Connexion</a>
+           <a href="register.html" id="nav-register" class="btn-solid">Ouvrir un compte</a>
+     </nav>
 
-      <nav class="nav-links" aria-label="Navigation principale">
-        <a href="#features" class="nav-link">Fonctionnalités</a>
-        <a href="#about" class="nav-link">À propos</a>
-        <a href="#help" class="nav-link">Aide</a>
-        <a href="login.html" class="btn-outline">Connexion</a>
-        <a href="register.html" class="btn-solid">Ouvrir un compte</a>
-      </nav>
     </div>
-    
   </header>
 
   <main>
@@ -56,7 +54,7 @@
           en toute sécurité, depuis une seule interface.
         </p>
         <div class="hero-actions">
-          <a href="register.html" class="btn-main">Créer un compte</a>
+          <a href="register.html" class="btn-main" >Créer un compte</a>
           <a href="#features" class="btn-secondary">Voir les fonctionnalités</a>
         </div>
       </div>

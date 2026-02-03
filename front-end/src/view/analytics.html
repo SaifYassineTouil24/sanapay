@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics - SanaPay</title>
+    <link rel="stylesheet" href="/front-end/src/css/style1.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>💳 SanaPay</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="dashboard.html">📊 Dashboard</a>
+                <a href="bills.html">📝 Factures</a>
+                <a href="analytics.html" class="active">📈 Analytics</a>
+                <a href="profile.html">👤 Profil</a>
+            </nav>
+            <div class="sidebar-footer">
+                <button onclick="logout()" class="btn btn-outline btn-block">Déconnexion</button>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <header class="page-header">
+                <h1>Analytics Financiers</h1>
+            </header>
+
+            <!-- Summary Cards -->
+            <div class="dashboard-grid">
+                <div class="card">
+                    <h4>Solde Actuel</h4>
+                    <div class="stat-value" id="currentBalance">0 MAD</div>
+                </div>
+                <div class="card">
+                    <h4>Total Dépôts</h4>
+                    <div class="stat-value" style="color: var(--success);" id="totalDeposits">0 MAD</div>
+                </div>
+                <div class="card">
+                    <h4>Total Retraits</h4>
+                    <div class="stat-value" style="color: var(--danger);" id="totalWithdrawals">0 MAD</div>
+                </div>
+                <div class="card">
+                    <h4>Factures en Attente</h4>
+                    <div class="stat-value" style="color: var(--warning);" id="pendingBills">0</div>
+                </div>
+            </div>
+
+            <!-- Monthly Analytics Chart -->
+            <div class="card">
+                <h3>Dépenses vs Revenus (12 derniers mois)</h3>
+                <canvas id="monthlyChart"></canvas>
+            </div>
+
+            <!-- Category Analytics -->
+            <div class="card">
+                <h3>Répartition des Dépenses par Catégorie</h3>
+                <div style="max-width: 500px; margin: 0 auto;">
+                    <canvas id="categoryChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Yearly Comparison -->
+            <div class="card">
+                <h3>Évolution Annuelle</h3>
+                <canvas id="yearlyChart"></canvas>
+            </div>
+
+            <!-- Top Bills -->
+            <div class="card">
+                <h3>Top 5 Factures les Plus Élevées</h3>
+                <div id="topBillsContainer">
+                    <p class="text-center loading">Chargement...</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="/front-end/src/controller/api.js"></script>
+    <script src="/front-end/src/controller/analytics.js"></script>
+</body>
+</html>

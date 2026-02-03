@@ -1,38 +1,482 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" class="dark-mode">
+
 <head>
-  <meta charset="UTF-8">
-  <title>Mon compte – SanaPay</title>
-  <link rel="stylesheet" href="/front-end/src/css/style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="SanaPay – Gérez votre compte et vos finances en toute sécurité" />
+  <title>SanaPay | Mon Compte</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+  <link rel="stylesheet" href="/front-end/src/css/account-dark.css" />
 </head>
 
 <body>
-  <main class="account-page">
 
-    <h1 id="welcome"></h1>
+<!-- Logo Header -->
+<header class="logo-header">
+  <div class="container">
+    <a href="index.html" class="brand-logo" aria-label="Accueil SanaPay">
+      <div class="logo-icon">S</div>
+      <span class="logo-text">SanaPay</span>
+    </a>
 
-    <p>Vous êtes connecté à votre espace personnel SanaPay.</p>
+    <div class="header-right">
+      <button class="theme-toggle" onclick="toggleTheme()" aria-label="Changer de thème">
+        <i class="fas fa-moon"></i>
+      </button>
+      <button class="btn-logout-header" onclick="logout()" aria-label="Déconnexion">
+        <i class="fas fa-sign-out-alt" aria-hidden="true"></i>
+        <span>Déconnexion</span>
+      </button>
+    </div>
+  </div>
+</header>
 
-    <button onclick="logout()">Déconnexion</button>
 
+  <!-- Main Content -->
+  <main class="dashboard-wrapper">
+    <div class="dashboard-container">
+      
+      <!-- Page Header with Profile -->
+      <div class="page-header">
+        <div class="page-header-content">
+          <div class="user-welcome">
+            <div class="user-avatar-section">
+              <div class="user-avatar">
+                <img src="https://ui-avatars.com/api/?name=User&background=3b82f6&color=fff&size=128&bold=true" alt="Avatar" id="userAvatar" />
+                <div class="avatar-badge">
+                  <i class="fas fa-check-circle"></i>
+                </div>
+              </div>
+              <div class="user-info-text">
+                <h1>Bienvenue, <span id="userName">Utilisateur</span></h1>
+                <p>Gérez votre compte et vos finances en toute simplicité</p>
+                <div class="user-meta">
+                  <div class="meta-badge verified">
+                    <i class="fas fa-shield-check"></i>
+                    <span>Compte vérifié</span>
+                  </div>
+                  <div class="meta-badge">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span id="memberSince">Membre depuis 2024</span>
+                  </div>
+                  <div class="meta-badge premium">
+                    <i class="fas fa-crown"></i>
+                    <span id="accountType">Premium</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="header-actions">
+            <button class="btn-header btn-settings" onclick="window.location.href='settings.html'">
+              <i class="fas fa-cog"></i>
+              Paramètres
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dashboard Grid -->
+      <div class="dashboard-grid">
+        
+        <!-- Wallet Card avec décorations -->
+        <div class="wallet-card">
+          <div class="wallet-decoration">
+            <div class="decoration-circle circle-1"></div>
+            <div class="decoration-circle circle-2"></div>
+            <div class="decoration-circle circle-3"></div>
+          </div>
+          
+          <div class="wallet-header">
+            <div class="wallet-title">
+              <i class="fas fa-wallet"></i>
+              Mon Portefeuille
+            </div>
+            <div class="wallet-status active">
+              <i class="fas fa-check-circle"></i>
+              Actif
+            </div>
+          </div>
+          
+          <div class="wallet-balance">
+            <div class="balance-label">Solde disponible</div>
+            <div class="balance-amount" id="balance">0.00 MAD</div>
+            <div class="balance-trend">
+              <i class="fas fa-arrow-up"></i>
+              <span>+0.00% ce mois</span>
+            </div>
+          </div>
+          
+          <div class="wallet-info">
+            <div class="wallet-number">
+              <span class="wallet-label">N° de portefeuille</span>
+              <span class="wallet-value" id="walletNumber">WALLET-XXXXXXX</span>
+            </div>
+            <button class="btn-copy" onclick="copyWalletNumber()">
+              <i class="fas fa-copy"></i>
+            </button>
+          </div>
+
+          <div class="wallet-actions">
+            <button class="wallet-action-btn" onclick="openModal('deposit')">
+              <i class="fas fa-plus"></i>
+              Déposer
+            </button>
+            <button class="wallet-action-btn" onclick="openModal('withdraw')">
+              <i class="fas fa-minus"></i>
+              Retirer
+            </button>
+          </div>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="stats-card">
+          <div class="stats-header">
+            <h2>Statistiques rapides</h2>
+            <p>Aperçu de vos activités</p>
+          </div>
+          <div class="stats-grid">
+            <div class="stat-item success">
+              <div class="stat-icon">
+                <i class="fas fa-arrow-down"></i>
+              </div>
+              <div class="stat-content">
+                <div class="stat-label">Dépôts ce mois</div>
+                <div class="stat-value" id="monthlyDeposits">0.00 MAD</div>
+              </div>
+            </div>
+            <div class="stat-item danger">
+              <div class="stat-icon">
+                <i class="fas fa-arrow-up"></i>
+              </div>
+              <div class="stat-content">
+                <div class="stat-label">Retraits ce mois</div>
+                <div class="stat-value" id="monthlyWithdrawals">0.00 MAD</div>
+              </div>
+            </div>
+            <div class="stat-item primary">
+              <div class="stat-icon">
+                <i class="fas fa-exchange-alt"></i>
+              </div>
+              <div class="stat-content">
+                <div class="stat-label">Transferts</div>
+                <div class="stat-value" id="totalTransfers">0</div>
+              </div>
+            </div>
+            <div class="stat-item info">
+              <div class="stat-icon">
+                <i class="fas fa-file-invoice-dollar"></i>
+              </div>
+              <div class="stat-content">
+                <div class="stat-label">Factures payées</div>
+                <div class="stat-value" id="paidBills">0</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="actions-section">
+        <div class="section-header">
+          <h2><i class="fas fa-bolt"></i> Actions rapides</h2>
+        </div>
+        <div class="actions-grid">
+          <div class="action-card" onclick="window.location.href='bills.html'">
+            <div class="action-icon bills">
+              <i class="fas fa-file-invoice"></i>
+            </div>
+            <h3>Mes Factures</h3>
+            <p>Consultez et payez vos factures</p>
+            <div class="action-arrow">
+              <i class="fas fa-arrow-right"></i>
+            </div>
+          </div>
+          
+          <div class="action-card" onclick="openModal('deposit')">
+            <div class="action-icon deposit">
+              <i class="fas fa-plus-circle"></i>
+            </div>
+            <h3>Dépôt</h3>
+            <p>Rechargez votre portefeuille</p>
+            <div class="action-arrow">
+              <i class="fas fa-arrow-right"></i>
+            </div>
+          </div>
+          
+          <div class="action-card" onclick="openModal('transfer')">
+            <div class="action-icon transfer">
+              <i class="fas fa-exchange-alt"></i>
+            </div>
+            <h3>Transfert</h3>
+            <p>Envoyez de l'argent</p>
+            <div class="action-arrow">
+              <i class="fas fa-arrow-right"></i>
+            </div>
+          </div>
+          
+          <div class="action-card" onclick="openModal('withdraw')">
+            <div class="action-icon withdraw">
+              <i class="fas fa-minus-circle"></i>
+            </div>
+            <h3>Retrait</h3>
+            <p>Retirez vos fonds</p>
+            <div class="action-arrow">
+              <i class="fas fa-arrow-right"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Transactions Section -->
+      <div class="transactions-section">
+        <div class="section-header">
+          <h2><i class="fas fa-receipt"></i> Transactions récentes</h2>
+          <div class="transactions-filters">
+            <button class="filter-btn active" data-filter="all">Toutes</button>
+            <button class="filter-btn" data-filter="deposit">Dépôts</button>
+            <button class="filter-btn" data-filter="withdraw">Retraits</button>
+            <button class="filter-btn" data-filter="transfer">Transferts</button>
+          </div>
+        </div>
+        
+        <div class="transactions-list" id="transactionsList">
+          <div class="empty-state">
+            <i class="fas fa-receipt"></i>
+            <p>Chargement de vos transactions...</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Security Settings -->
+      <div class="security-section">
+        <div class="section-header">
+          <h2><i class="fas fa-shield-alt"></i> Sécurité & Confidentialité</h2>
+        </div>
+        
+        <div class="security-grid">
+          <div class="security-item">
+            <div class="security-info">
+              <div class="security-icon twofa">
+                <i class="fas fa-mobile-alt"></i>
+              </div>
+              <div class="security-details">
+                <h3>Authentification à deux facteurs</h3>
+                <p>Sécurisez votre compte avec 2FA</p>
+              </div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="toggle2FA" onchange="toggle2FA()">
+              <span class="slider"></span>
+            </label>
+          </div>
+          
+          <div class="security-item">
+            <div class="security-info">
+              <div class="security-icon notifications-security">
+                <i class="fas fa-bell"></i>
+              </div>
+              <div class="security-details">
+                <h3>Notifications en temps réel</h3>
+                <p>Alertes pour chaque transaction</p>
+              </div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="toggleNotifications" checked onchange="toggleNotifications()">
+              <span class="slider"></span>
+            </label>
+          </div>
+          
+          <div class="security-item">
+            <div class="security-info">
+              <div class="security-icon protection">
+                <i class="fas fa-shield-check"></i>
+              </div>
+              <div class="security-details">
+                <h3>Protection anti-fraude</h3>
+                <p>Surveillance automatique</p>
+              </div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="toggleFraudProtection" checked disabled>
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+    </div>
   </main>
 
+  <!-- Modals -->
+  
+  <!-- Deposit Modal -->
+  <div class="modal" id="depositModal">
+    <div class="modal-overlay" onclick="closeModals()"></div>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2><i class="fas fa-plus-circle"></i> Effectuer un dépôt</h2>
+        <button class="btn-close-modal" onclick="closeModals()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      
+      <form onsubmit="makeDeposit(event)">
+        <div class="form-group">
+          <label><i class="fas fa-money-bill-wave"></i> Montant (MAD)</label>
+          <input type="number" id="depositAmount" placeholder="100.00" min="1" step="0.01" required />
+        </div>
+        
+        <div class="form-group">
+          <label><i class="fas fa-credit-card"></i> Méthode de paiement</label>
+          <select id="depositMethod" required>
+            <option value="">Sélectionnez une méthode</option>
+            <option value="card">💳 Carte bancaire</option>
+            <option value="bank">🏦 Virement bancaire</option>
+            <option value="cash">💵 Espèces (Point de vente)</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label><i class="fas fa-comment-alt"></i> Description (optionnel)</label>
+          <input type="text" id="depositDescription" placeholder="Ex: Recharge mensuelle" />
+        </div>
+        
+        <div class="btn-group">
+          <button type="button" class="btn btn-secondary" onclick="closeModals()">Annuler</button>
+          <button type="submit" class="btn btn-primary">
+            <i class="fas fa-check"></i> Déposer
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Transfer Modal -->
+  <div class="modal" id="transferModal">
+    <div class="modal-overlay" onclick="closeModals()"></div>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2><i class="fas fa-exchange-alt"></i> Effectuer un transfert</h2>
+        <button class="btn-close-modal" onclick="closeModals()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      
+      <form onsubmit="makeTransfer(event)">
+        <div class="form-group">
+          <label><i class="fas fa-wallet"></i> N° Portefeuille destinataire</label>
+          <input type="text" id="transferWallet" placeholder="WALLET-XXXXXXX" required />
+        </div>
+        
+        <div class="form-group">
+          <label><i class="fas fa-money-bill-wave"></i> Montant (MAD)</label>
+          <input type="number" id="transferAmount" placeholder="100.00" min="1" step="0.01" required />
+        </div>
+        
+        <div class="form-group">
+          <label><i class="fas fa-comment-alt"></i> Description (optionnel)</label>
+          <input type="text" id="transferDescription" placeholder="Ex: Remboursement" />
+        </div>
+        
+        <div class="btn-group">
+          <button type="button" class="btn btn-secondary" onclick="closeModals()">Annuler</button>
+          <button type="submit" class="btn btn-primary">
+            <i class="fas fa-paper-plane"></i> Envoyer
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Withdraw Modal -->
+  <div class="modal" id="withdrawModal">
+    <div class="modal-overlay" onclick="closeModals()"></div>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2><i class="fas fa-minus-circle"></i> Effectuer un retrait</h2>
+        <button class="btn-close-modal" onclick="closeModals()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      
+      <form onsubmit="makeWithdraw(event)">
+        <div class="form-group">
+          <label><i class="fas fa-money-bill-wave"></i> Montant (MAD)</label>
+          <input type="number" id="withdrawAmount" placeholder="100.00" min="1" step="0.01" required />
+        </div>
+        
+        <div class="form-group">
+          <label><i class="fas fa-credit-card"></i> Méthode de retrait</label>
+          <select id="withdrawMethod" required>
+            <option value="">Sélectionnez une méthode</option>
+            <option value="bank">🏦 Virement bancaire</option>
+            <option value="cash">💵 Espèces (Point de vente)</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label><i class="fas fa-comment-alt"></i> Description (optionnel)</label>
+          <input type="text" id="withdrawDescription" placeholder="Ex: Retrait mensuel" />
+        </div>
+        
+        <div class="btn-group">
+          <button type="button" class="btn btn-secondary" onclick="closeModals()">Annuler</button>
+          <button type="submit" class="btn btn-primary">
+            <i class="fas fa-check"></i> Retirer
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Notifications Modal -->
+  <div class="modal" id="notificationsModal">
+    <div class="modal-overlay" onclick="closeModals()"></div>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2><i class="fas fa-bell"></i> Notifications</h2>
+        <button class="btn-close-modal" onclick="closeModals()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      
+      <div id="notificationsList">
+        <div class="empty-state">
+          <i class="fas fa-bell-slash"></i>
+          <p>Aucune notification pour le moment</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/front-end/src/controller/dashboard.js"></script>
   <script>
-    // Vérifier si l'utilisateur est connecté
-    const email = localStorage.getItem('userEmail');
-
-    if (!email) {
-      // pas connecté → retour login
-      window.location.href = 'login.html';
-    } else {
-      document.getElementById('welcome').innerText =
-        'Bienvenue ' + email;
+    // Theme toggle function
+    function toggleTheme() {
+      document.documentElement.classList.toggle('dark-mode');
+      const isDark = document.documentElement.classList.contains('dark-mode');
+      localStorage.setItem('theme', isDark ? 'dark' : 'light');
+      
+      const icon = document.querySelector('.theme-toggle i');
+      icon.className = isDark ? 'fas fa-sun' : 'fas fa-moon';
     }
 
-    function logout() {
-      localStorage.removeItem('userEmail');
-      window.location.href = 'login.html';
-    }
+    // Load saved theme on page load
+    document.addEventListener('DOMContentLoaded', () => {
+      const savedTheme = localStorage.getItem('theme') || 'dark';
+      if (savedTheme === 'dark') {
+        document.documentElement.classList.add('dark-mode');
+        document.querySelector('.theme-toggle i').className = 'fas fa-sun';
+      }
+    });
   </script>
 </body>
+
 </html>

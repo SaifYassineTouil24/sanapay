@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Factures - SanaPay</title>
+    <link rel="stylesheet" href="/front-end/src/css/style1.css">
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>💳 SanaPay</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="dashboard.html">📊 Dashboard</a>
+                <a href="bills.html" class="active">📝 Factures</a>
+                <a href="analytics.html">📈 Analytics</a>
+                <a href="profile.html">👤 Profil</a>
+            </nav>
+            <div class="sidebar-footer">
+                <button onclick="logout()" class="btn btn-outline btn-block">Déconnexion</button>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="bills-header">
+                <h1>Gestion des Factures</h1>
+                <button onclick="openCreateBillModal()" class="btn btn-primary">+ Nouvelle Facture</button>
+            </div>
+
+            <div class="bills-filters">
+                <div class="form-group" style="margin-bottom: 0;">
+                    <select id="statusFilter" onchange="filterBills()">
+                        <option value="">Tous les statuts</option>
+                        <option value="PENDING">En attente</option>
+                        <option value="PAID">Payées</option>
+                        <option value="OVERDUE">En retard</option>
+                        <option value="CANCELLED">Annulées</option>
+                    </select>
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                    <select id="categoryFilter" onchange="filterBills()">
+                        <option value="">Toutes les catégories</option>
+                        <option value="ELECTRICITY">Électricité</option>
+                        <option value="WATER">Eau</option>
+                        <option value="INTERNET">Internet</option>
+                        <option value="PHONE">Téléphone</option>
+                        <option value="GAS">Gaz</option>
+                        <option value="INSURANCE">Assurance</option>
+                        <option value="SUBSCRIPTION">Abonnement</option>
+                        <option value="RENT">Loyer</option>
+                        <option value="OTHER">Autre</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="billsContainer" class="bills-grid">
+                <p class="text-center loading">Chargement des factures...</p>
+            </div>
+        </main>
+    </div>
+
+    <!-- Create Bill Modal -->
+    <div id="createBillModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('createBillModal')">&times;</span>
+            <h3>Nouvelle Facture</h3>
+            <form id="createBillForm">
+                <div class="form-group">
+                    <label for="billTitle">Titre *</label>
+                    <input 
+                        type="text" 
+                        id="billTitle" 
+                        required 
+                        minlength="3"
+                        maxlength="200"
+                        placeholder="Ex: Facture électricité - Janvier 2026">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="billAmount">Montant (MAD) *</label>
+                        <input 
+                            type="number" 
+                            id="billAmount" 
+                            required 
+                            min="1" 
+                            max="100000"
+                            step="0.01"
+                            placeholder="450.50">
+                    </div>
+                    <div class="form-group">
+                        <label for="billCategory">Catégorie *</label>
+                        <select id="billCategory" required>
+                            <option value="">Choisir...</option>
+                            <option value="ELECTRICITY">⚡ Électricité</option>
+                            <option value="WATER">💧 Eau</option>
+                            <option value="INTERNET">🌐 Internet</option>
+                            <option value="PHONE">📱 Téléphone</option>
+                            <option value="GAS">🔥 Gaz</option>
+                            <option value="INSURANCE">🛡️ Assurance</option>
+                            <option value="SUBSCRIPTION">📺 Abonnement</option>
+                            <option value="RENT">🏠 Loyer</option>
+                            <option value="OTHER">📋 Autre</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="billDueDate">Date d'échéance</label>
+                    <input type="date" id="billDueDate">
+                </div>
+                <div class="form-group">
+                    <label for="billAccountNumber">Numéro de compte</label>
+                    <input 
+                        type="text" 
+                        id="billAccountNumber" 
+                        maxlength="100"
+                        placeholder="Ex: ACC-123456">
+                </div>
+                <div class="form-group">
+                    <label for="billNotes">Notes</label>
+                    <textarea 
+                        id="billNotes" 
+                        rows="3" 
+                        maxlength="500"
+                        placeholder="Notes additionnelles..."></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Créer la facture</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Bill Modal -->
+    <div id="editBillModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('editBillModal')">&times;</span>
+            <h3>Modifier la Facture</h3>
+            <form id="editBillForm">
+                <input type="hidden" id="editBillId">
+                <div class="form-group">
+                    <label for="editBillTitle">Titre *</label>
+                    <input 
+                        type="text" 
+                        id="editBillTitle" 
+                        required 
+                        minlength="3"
+                        maxlength="200">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="editBillAmount">Montant (MAD) *</label>
+                        <input 
+                            type="number" 
+                            id="editBillAmount" 
+                            required 
+                            min="1" 
+                            max="100000"
+                            step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label for="editBillCategory">Catégorie *</label>
+                        <select id="editBillCategory" required>
+                            <option value="ELECTRICITY">⚡ Électricité</option>
+                            <option value="WATER">💧 Eau</option>
+                            <option value="INTERNET">🌐 Internet</option>
+                            <option value="PHONE">📱 Téléphone</option>
+                            <option value="GAS">🔥 Gaz</option>
+                            <option value="INSURANCE">🛡️ Assurance</option>
+                            <option value="SUBSCRIPTION">📺 Abonnement</option>
+                            <option value="RENT">🏠 Loyer</option>
+                            <option value="OTHER">📋 Autre</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="editBillDueDate">Date d'échéance</label>
+                    <input type="date" id="editBillDueDate">
+                </div>
+                <div class="form-group">
+                    <label for="editBillAccountNumber">Numéro de compte</label>
+                    <input 
+                        type="text" 
+                        id="editBillAccountNumber" 
+                        maxlength="100">
+                </div>
+                <div class="form-group">
+                    <label for="editBillNotes">Notes</label>
+                    <textarea 
+                        id="editBillNotes" 
+                        rows="3" 
+                        maxlength="500"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Sauvegarder</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Pay Bill Modal -->
+    <div id="payBillModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('payBillModal')">&times;</span>
+            <h3>Payer la Facture</h3>
+            <div id="payBillInfo"></div>
+            <div style="margin-top: 1.5rem;">
+                <button onclick="confirmPayBill()" class="btn btn-success btn-block">Confirmer le paiement</button>
+                <button onclick="closeModal('payBillModal')" class="btn btn-outline btn-block" style="margin-top: 0.5rem;">Annuler</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/front-end/src/controller/api.js"></script>
+    <script src="/front-end/src/controller/bills.js"></script>
+</body>
+</html>

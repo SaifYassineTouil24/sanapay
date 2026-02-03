@@ -1,21 +1,65 @@
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+} from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import * as bcrypt from 'bcrypt';
+import { User } from '../user/user.entity';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
-  private users: { email: string; password: string }[] = [];
+  constructor(
+    @InjectRepository(User)
+    private userRepo: Repository<User>,
+    private jwtService: JwtService,
+  ) {}
 
-  register(email: string, password: string) {
-    this.users.push({ email, password });
-    return 'Utilisateur enregistré avec succès';
+  async register(email: string, password: string) {
+    const exists = await this.userRepo.findOne({ where: { email } });
+    if (exists) {
+      throw new BadRequestException('Utilisateur déjà existant');
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const user = this.userRepo.create({
+      email,
+      password: hashedPassword,
+    });
+
+    await this.userRepo.save(user);
+
+    return {
+      success: true,
+      message: 'Utilisateur enregistré avec succès',
+    };
   }
 
-  login(email: string, password: string) {
-    const user = this.users.find(
-      (u) => u.email === email && u.password === password,
-    );
+  async login(email: string, password: string) {
+  const user = await this.userRepo.findOne({ where: { email } });
 
-    return user
-      ? 'Connexion réussie'
-      : 'Identifiants invalides';
+  if (!user) {
+    throw new BadRequestException('Identifiants invalides');
   }
+
+  const match = await bcrypt.compare(password, user.password);
+  if (!match) {
+    throw new BadRequestException('Identifiants invalides');
+  }
+
+  const payload = {
+    sub: user.id,        // 🔥 ID RÉEL
+    email: user.email,
+  };
+
+  const token = this.jwtService.sign(payload);
+
+  return {
+    success: true,
+    access_token: token,
+  };
+}
+
 }
