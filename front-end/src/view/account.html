@@ -13,9 +13,12 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
 
   <link rel="stylesheet" href="/front-end/src/css/account-dark.css" />
+  <link rel="stylesheet" href="/front-end/src/css/ui-components.css" />
 </head>
 
 <body>
+  <script src="../controller/guards.js"></script>
+
 
 <!-- Logo Header -->
 <header class="logo-header">
@@ -165,7 +168,7 @@
                 <i class="fas fa-exchange-alt"></i>
               </div>
               <div class="stat-content">
-                <div class="stat-label">Transferts</div>
+                <div class="stat-label">Total transactions</div>
                 <div class="stat-value" id="totalTransfers">0</div>
               </div>
             </div>
@@ -318,45 +321,46 @@
   
   <!-- Deposit Modal -->
   <div class="modal" id="depositModal">
-    <div class="modal-overlay" onclick="closeModals()"></div>
-    <div class="modal-content">
-      <div class="modal-header">
-        <h2><i class="fas fa-plus-circle"></i> Effectuer un dépôt</h2>
-        <button class="btn-close-modal" onclick="closeModals()">
-          <i class="fas fa-times"></i>
+  <div class="modal-overlay" onclick="closeModals()"></div>
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2><i class="fas fa-plus-circle"></i> Effectuer un dépôt</h2>
+      <button class="btn-close-modal" onclick="closeModals()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <form>
+      <div class="form-group">
+        <label>Montant (MAD)</label>
+        <input type="number" id="depositAmount" min="1" step="0.01" required />
+      </div>
+
+      <div class="form-group">
+        <label>Méthode de paiement</label>
+        <select id="depositMethod" required>
+          <option value="card">Carte bancaire</option>
+          <option value="bank">Virement bancaire</option>
+          <option value="cash">Espèces</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Description</label>
+        <input type="text" id="depositDescription" />
+      </div>
+
+      <div class="btn-group">
+       <p id="depositMessage" style="margin-top:10px"></p>
+        <button type="button" class="btn btn-secondary" onclick="closeModals()">Annuler</button>
+        <button type="button" class="btn btn-primary" id="depositBtn">
+          Déposer
         </button>
       </div>
-      
-      <form onsubmit="makeDeposit(event)">
-        <div class="form-group">
-          <label><i class="fas fa-money-bill-wave"></i> Montant (MAD)</label>
-          <input type="number" id="depositAmount" placeholder="100.00" min="1" step="0.01" required />
-        </div>
-        
-        <div class="form-group">
-          <label><i class="fas fa-credit-card"></i> Méthode de paiement</label>
-          <select id="depositMethod" required>
-            <option value="">Sélectionnez une méthode</option>
-            <option value="card">💳 Carte bancaire</option>
-            <option value="bank">🏦 Virement bancaire</option>
-            <option value="cash">💵 Espèces (Point de vente)</option>
-          </select>
-        </div>
-        
-        <div class="form-group">
-          <label><i class="fas fa-comment-alt"></i> Description (optionnel)</label>
-          <input type="text" id="depositDescription" placeholder="Ex: Recharge mensuelle" />
-        </div>
-        
-        <div class="btn-group">
-          <button type="button" class="btn btn-secondary" onclick="closeModals()">Annuler</button>
-          <button type="submit" class="btn btn-primary">
-            <i class="fas fa-check"></i> Déposer
-          </button>
-        </div>
-      </form>
-    </div>
+    </form>
   </div>
+</div>
+
 
   <!-- Transfer Modal -->
   <div class="modal" id="transferModal">
@@ -427,6 +431,7 @@
         </div>
         
         <div class="btn-group">
+          <p id="withdrawMessage" style="margin-top:10px;font-size:0.9rem;"></p>
           <button type="button" class="btn btn-secondary" onclick="closeModals()">Annuler</button>
           <button type="submit" class="btn btn-primary">
             <i class="fas fa-check"></i> Retirer
@@ -457,6 +462,17 @@
   </div>
 
   <script src="/front-end/src/controller/dashboard.js"></script>
+
+
+
+   
+  
+  
+
+
+  
+
+  
   <script>
     // Theme toggle function
     function toggleTheme() {

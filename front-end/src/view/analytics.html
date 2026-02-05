@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Analytics - SanaPay</title>
-    <link rel="stylesheet" href="/front-end/src/css/style1.css">
+    <link rel="stylesheet" href="/front-end/src/css/analytics.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
 <body>
@@ -14,7 +14,7 @@
                 <h2>💳 SanaPay</h2>
             </div>
             <nav class="sidebar-nav">
-                <a href="dashboard.html">📊 Dashboard</a>
+                <a href="account.html">📊 Dashboard</a>
                 <a href="bills.html">📝 Factures</a>
                 <a href="analytics.html" class="active">📈 Analytics</a>
                 <a href="profile.html">👤 Profil</a>
@@ -44,9 +44,14 @@
                     <div class="stat-value" style="color: var(--danger);" id="totalWithdrawals">0 MAD</div>
                 </div>
                 <div class="card">
+                    <h4>Total de transfert</h4>
+                    <div class="stat-value" style="color: var(--warning);" id="pendingBills">0 MAD</div>
+                </div>
+                <div class="card">
                     <h4>Factures en Attente</h4>
                     <div class="stat-value" style="color: var(--warning);" id="pendingBills">0</div>
                 </div>
+                
             </div>
 
             <!-- Monthly Analytics Chart -->

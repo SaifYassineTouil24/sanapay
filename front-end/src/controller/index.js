@@ -32,27 +32,6 @@ function handleregister(e) {
     window.location.href = "./register.html";
   }, 500);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 const logoImg = document.querySelector(".brand img");
 logoLink.addEventListener("click", (e) => {
   e.preventDefault();

@@ -1,51 +1,41 @@
-const API_BASE = 'http://localhost:3000';
+console.log("login.js chargé en tant que MODULE");
+import { login } from '../services/auth.js';
 
-document.getElementById('loginForm').addEventListener('submit', async (e) => {
+const form = document.getElementById('loginForm');
+const message = document.getElementById('loginMessage');
+
+form.addEventListener('submit', async (e) => {
   e.preventDefault();
 
   const email = document.getElementById('login-id').value;
   const password = document.getElementById('login-password').value;
-  const messageEl = document.getElementById('loginMessage');
 
-  if (!email || !password) {
-    messageEl.textContent = 'Veuillez remplir tous les champs';
-    messageEl.style.color = 'red';
-    return;
-  }
+  message.textContent = 'Connexion en cours...';
+  message.style.color = '#555';
 
   try {
-    const response = await fetch(`${API_BASE}/auth/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password }),
-    });
+    const data = await login(email, password);
 
-    const result = await response.json();
-
-    if (!response.ok) {
-      messageEl.textContent = result.message || 'Identifiants invalides';
-      messageEl.style.color = 'red';
+    if (!data.access_token) {
+      message.textContent = data.message || 'Identifiants invalides';
+      message.style.color = 'red';
       return;
     }
 
-    // ✅ STOCKAGE CORRECT
-    localStorage.setItem('token', result.access_token);
-    localStorage.setItem(
-      'sanapay_user',
-      JSON.stringify(result.data)
-    );
+    // ✅ Stockage du token
+    localStorage.setItem('access_token', data.access_token);
 
-    messageEl.style.color = 'green';
-    messageEl.textContent = 'Connexion réussie';
+    message.textContent = 'Connexion réussie';
+    message.style.color = 'green';
 
+    // ✅ REDIRECTION
     setTimeout(() => {
       window.location.href = 'account.html';
     }, 500);
 
   } catch (err) {
     console.error(err);
-    messageEl.textContent = 'Erreur de connexion au serveur';
-    messageEl.style.color = 'red';
+    message.textContent = 'Erreur serveur';
+    message.style.color = 'red';
   }
 });
-

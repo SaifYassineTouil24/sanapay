@@ -1,245 +1,677 @@
-const API_BASE = 'http://localhost:3000';
+/**
+ * ====================================
+ * SANAPAY - BILLS MANAGEMENT
+ * ====================================
+ * Gestion complète des factures avec API
+ * @version 1.0.0
+ */
 
+const API_BASE = "http://localhost:3000/api";
 
-// Bills Management JavaScript
-let currentBillId = null;
-
-// Category icons mapping
-const categoryIcons = {
-    ELECTRICITY: '⚡',
-    WATER: '💧',
-    INTERNET: '🌐',
-    PHONE: '📱',
-    GAS: '🔥',
-    INSURANCE: '🛡️',
-    SUBSCRIPTION: '📺',
-    RENT: '🏠',
-    OTHER: '📋'
+// ============================================
+// STATE MANAGEMENT
+// ============================================
+let billsState = {
+    bills: [],
+    filteredBills: [],
+    currentBill: null,
+    filters: {
+        status: '',
+        category: '',
+        search: '',
+        sort: 'date-desc'
+    }
 };
 
-// Category names in French
-const categoryNames = {
-    ELECTRICITY: 'Électricité',
-    WATER: 'Eau',
-    INTERNET: 'Internet',
-    PHONE: 'Téléphone',
-    GAS: 'Gaz',
-    INSURANCE: 'Assurance',
-    SUBSCRIPTION: 'Abonnement',
-    RENT: 'Loyer',
-    OTHER: 'Autre'
-};
+// ============================================
+// AUTHENTICATION & HEADERS
+// ============================================
+function getAuthHeaders() {
+    const token = localStorage.getItem("access_token");
+    if (!token) {
+        window.location.href = "login.html";
+        return {};
+    }
+    return {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`,
+    };
+}
 
-// Load all bills
+// ============================================
+// INITIALIZATION
+// ============================================
+document.addEventListener("DOMContentLoaded", async () => {
+    await loadBills();
+    updateStats();
+});
+
+// ============================================
+// BILLS DATA LOADING
+// ============================================
 async function loadBills() {
+    showLoader("Chargement des factures...");
+    
     try {
-        const statusFilter = document.getElementById('statusFilter').value;
-        const categoryFilter = document.getElementById('categoryFilter').value;
+        const response = await fetch(`${API_BASE}/bills`, {
+            headers: getAuthHeaders(),
+        });
+
+        if (!response.ok) {
+            if (response.status === 401) {
+                logout();
+                return;
+            }
+            throw new Error("Erreur lors du chargement des factures");
+        }
+
+        const data = await response.json();
+        billsState.bills = data.bills || [];
+        billsState.filteredBills = [...billsState.bills];
         
-        const filters = {};
-        if (statusFilter) filters.status = statusFilter;
-        if (categoryFilter) filters.category = categoryFilter;
+        renderBills();
+        updateStats();
         
-        const response = await api.getBills(filters);
-        displayBills(response.bills);
     } catch (error) {
-        console.error('Error loading bills:', error);
-        document.getElementById('billsContainer').innerHTML = 
-            `<p class="text-center" style="color: var(--danger);">Erreur: ${error.message}</p>`;
+        console.error("Error loading bills:", error);
+        showToast("Erreur lors du chargement des factures", "error");
+        renderEmptyState("Erreur de chargement");
+    } finally {
+        hideLoader();
     }
 }
 
-// Display bills
-function displayBills(bills) {
+// ============================================
+// BILLS RENDERING
+// ============================================
+function renderBills() {
     const container = document.getElementById('billsContainer');
     
-    if (bills.length === 0) {
-        container.innerHTML = '<p class="text-center">Aucune facture trouvée</p>';
+    if (!billsState.filteredBills || billsState.filteredBills.length === 0) {
+        renderEmptyState();
         return;
     }
+
+    container.innerHTML = `
+        <div class="bills-grid-layout">
+            ${billsState.filteredBills.map(bill => createBillCard(bill)).join('')}
+        </div>
+    `;
+}
+
+function createBillCard(bill) {
+    const categoryIcon = getCategoryIcon(bill.category);
+    const statusClass = bill.status.toLowerCase();
+    const statusText = getStatusText(bill.status);
+    const formattedDate = bill.dueDate ? formatDate(bill.dueDate) : 'Non définie';
+    const daysUntilDue = bill.dueDate ? getDaysUntilDue(bill.dueDate) : null;
     
-    container.innerHTML = bills.map(bill => `
-        <div class="bill-card">
-            <div class="bill-header">
-                <div class="bill-category-icon">${categoryIcons[bill.category] || '📋'}</div>
-                <span class="bill-status ${bill.status.toLowerCase()}">${getStatusText(bill.status)}</span>
+    return `
+        <div class="bill-card-item ${statusClass}" data-bill-id="${bill.id}">
+            <div class="bill-card-header">
+                <span class="bill-icon">${categoryIcon}</span>
+                <span class="bill-status-badge ${statusClass}">${statusText}</span>
             </div>
-            <div class="bill-title">${bill.title}</div>
-            <div class="bill-amount">${bill.amount.toFixed(2)} MAD</div>
-            <div class="bill-details">
-                <p><strong>Catégorie:</strong> ${categoryNames[bill.category] || bill.category}</p>
-                ${bill.dueDate ? `<p><strong>Échéance:</strong> ${formatDate(bill.dueDate)}</p>` : ''}
-                ${bill.accountNumber ? `<p><strong>Compte:</strong> ${bill.accountNumber}</p>` : ''}
-                ${bill.notes ? `<p><strong>Notes:</strong> ${bill.notes}</p>` : ''}
+            
+            <div class="bill-card-body">
+                <h3 class="bill-title">${escapeHtml(bill.title)}</h3>
+                <div class="bill-amount">${Number(bill.amount).toFixed(2)} <span class="currency">MAD</span></div>
+                
+                <div class="bill-details">
+                    ${bill.dueDate ? `
+                        <div class="bill-detail-row">
+                            <i class="fas fa-calendar-alt"></i>
+                            <span>Échéance: ${formattedDate}</span>
+                        </div>
+                        ${daysUntilDue !== null ? `
+                            <div class="bill-detail-row ${daysUntilDue < 0 ? 'overdue-text' : daysUntilDue <= 7 ? 'warning-text' : ''}">
+                                <i class="fas fa-clock"></i>
+                                <span>${daysUntilDue < 0 ? Math.abs(daysUntilDue) + ' jours de retard' : daysUntilDue === 0 ? "Aujourd'hui" : 'Dans ' + daysUntilDue + ' jours'}</span>
+                            </div>
+                        ` : ''}
+                    ` : ''}
+                    
+                    ${bill.accountNumber ? `
+                        <div class="bill-detail-row">
+                            <i class="fas fa-hashtag"></i>
+                            <span>${escapeHtml(bill.accountNumber)}</span>
+                        </div>
+                    ` : ''}
+                    
+                    ${bill.notes ? `
+                        <div class="bill-detail-row">
+                            <i class="fas fa-sticky-note"></i>
+                            <span>${escapeHtml(bill.notes)}</span>
+                        </div>
+                    ` : ''}
+                </div>
             </div>
-            <div class="bill-actions">
-                ${bill.status === 'PENDING' || bill.status === 'OVERDUE' ? 
-                    `<button onclick="openPayBillModal('${bill.id}')" class="btn btn-sm btn-success">💰 Payer</button>` : ''}
-                ${bill.status !== 'PAID' ? 
-                    `<button onclick="openEditBillModal('${bill.id}')" class="btn btn-sm btn-primary">✏️ Modifier</button>` : ''}
-                ${bill.status !== 'PAID' ? 
-                    `<button onclick="deleteBill('${bill.id}')" class="btn btn-sm btn-danger">🗑️ Supprimer</button>` : ''}
+            
+            <div class="bill-card-footer">
+                ${bill.status === 'PENDING' ? `
+                    <button onclick="openPayBillModal('${bill.id}')" class="btn-bill-action btn-pay">
+                        <i class="fas fa-credit-card"></i>
+                        Payer
+                    </button>
+                ` : ''}
+                
+                <button onclick="openEditBillModal('${bill.id}')" class="btn-bill-action btn-edit">
+                    <i class="fas fa-edit"></i>
+                    Modifier
+                </button>
+                
+                <button onclick="deleteBill('${bill.id}')" class="btn-bill-action btn-delete">
+                    <i class="fas fa-trash"></i>
+                    Supprimer
+                </button>
             </div>
         </div>
-    `).join('');
+    `;
 }
 
-// Get status text in French
-function getStatusText(status) {
-    const statusTexts = {
-        PENDING: 'En attente',
-        PAID: 'Payée',
-        OVERDUE: 'En retard',
-        CANCELLED: 'Annulée'
-    };
-    return statusTexts[status] || status;
+function renderEmptyState(message = null) {
+    const container = document.getElementById('billsContainer');
+    container.innerHTML = `
+        <div class="empty-state-bills">
+            <i class="fas fa-file-invoice fa-4x"></i>
+            <h3>${message || 'Aucune facture trouvée'}</h3>
+            <p>Commencez par créer votre première facture</p>
+            ${!message ? '<button onclick="openCreateBillModal()" class="btn btn-primary"><i class="fas fa-plus"></i> Créer une facture</button>' : ''}
+        </div>
+    `;
 }
 
-// Format date
-function formatDate(dateString) {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('fr-FR', { year: 'numeric', month: 'long', day: 'numeric' });
-}
-
-// Filter bills
+// ============================================
+// FILTERS & SEARCH
+// ============================================
 function filterBills() {
-    loadBills();
+    const searchTerm = document.getElementById('searchInput')?.value.toLowerCase() || '';
+    const statusFilter = document.getElementById('statusFilter')?.value || '';
+    const categoryFilter = document.getElementById('categoryFilter')?.value || '';
+    const sortFilter = document.getElementById('sortFilter')?.value || 'date-desc';
+    
+    billsState.filters = {
+        search: searchTerm,
+        status: statusFilter,
+        category: categoryFilter,
+        sort: sortFilter
+    };
+    
+    billsState.filteredBills = billsState.bills.filter(bill => {
+        const matchesSearch = !searchTerm || 
+            bill.title.toLowerCase().includes(searchTerm) ||
+            bill.notes?.toLowerCase().includes(searchTerm) ||
+            bill.accountNumber?.toLowerCase().includes(searchTerm);
+        
+        const matchesStatus = !statusFilter || bill.status === statusFilter;
+        const matchesCategory = !categoryFilter || bill.category === categoryFilter;
+        
+        return matchesSearch && matchesStatus && matchesCategory;
+    });
+    
+    // Sort
+    billsState.filteredBills.sort((a, b) => {
+        switch (sortFilter) {
+            case 'date-desc':
+                return new Date(b.createdAt) - new Date(a.createdAt);
+            case 'date-asc':
+                return new Date(a.createdAt) - new Date(b.createdAt);
+            case 'amount-desc':
+                return b.amount - a.amount;
+            case 'amount-asc':
+                return a.amount - b.amount;
+            default:
+                return 0;
+        }
+    });
+    
+    renderBills();
 }
 
-// Open create bill modal
+// ============================================
+// STATS UPDATE
+// ============================================
+function updateStats() {
+    const stats = {
+        pending: { count: 0, amount: 0 },
+        paid: { count: 0, amount: 0 },
+        overdue: { count: 0, amount: 0 },
+        total: { count: 0, amount: 0 }
+    };
+    
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+    
+    billsState.bills.forEach(bill => {
+        const billDate = new Date(bill.createdAt);
+        const isCurrentMonth = billDate.getMonth() === currentMonth && 
+                              billDate.getFullYear() === currentYear;
+        
+        if (isCurrentMonth) {
+            stats.total.count++;
+            stats.total.amount += Number(bill.amount);
+        }
+        
+        if (bill.status === 'PENDING') {
+            stats.pending.count++;
+            stats.pending.amount += Number(bill.amount);
+        } else if (bill.status === 'PAID') {
+            stats.paid.count++;
+            stats.paid.amount += Number(bill.amount);
+        } else if (bill.status === 'OVERDUE') {
+            stats.overdue.count++;
+            stats.overdue.amount += Number(bill.amount);
+        }
+    });
+    
+    // Update DOM
+    document.getElementById('pendingCount').textContent = stats.pending.count;
+    document.getElementById('pendingAmount').textContent = stats.pending.amount.toFixed(2) + ' MAD';
+    
+    document.getElementById('paidCount').textContent = stats.paid.count;
+    document.getElementById('paidAmount').textContent = stats.paid.amount.toFixed(2) + ' MAD';
+    
+    document.getElementById('overdueCount').textContent = stats.overdue.count;
+    document.getElementById('overdueAmount').textContent = stats.overdue.amount.toFixed(2) + ' MAD';
+    
+    document.getElementById('totalCount').textContent = stats.total.count;
+    document.getElementById('totalAmount').textContent = stats.total.amount.toFixed(2) + ' MAD';
+}
+
+// ============================================
+// MODAL MANAGEMENT
+// ============================================
 function openCreateBillModal() {
-    document.getElementById('createBillModal').style.display = 'block';
     document.getElementById('createBillForm').reset();
+    openModal('createBillModal');
 }
 
-// Open edit bill modal
-async function openEditBillModal(billId) {
-    try {
-        const bill = await api.getBill(billId);
-        
-        document.getElementById('editBillId').value = bill.id;
-        document.getElementById('editBillTitle').value = bill.title;
-        document.getElementById('editBillAmount').value = bill.amount;
-        document.getElementById('editBillCategory').value = bill.category;
-        document.getElementById('editBillDueDate').value = bill.dueDate ? bill.dueDate.split('T')[0] : '';
-        document.getElementById('editBillAccountNumber').value = bill.accountNumber || '';
-        document.getElementById('editBillNotes').value = bill.notes || '';
-        
-        document.getElementById('editBillModal').style.display = 'block';
-    } catch (error) {
-        alert('Erreur: ' + error.message);
-    }
+function openEditBillModal(billId) {
+    const bill = billsState.bills.find(b => b.id === billId);
+    if (!bill) return;
+    
+    document.getElementById('editBillId').value = bill.id;
+    document.getElementById('editBillTitle').value = bill.title;
+    document.getElementById('editBillAmount').value = bill.amount;
+    document.getElementById('editBillCategory').value = bill.category;
+    document.getElementById('editBillDueDate').value = bill.dueDate || '';
+    document.getElementById('editBillAccountNumber').value = bill.accountNumber || '';
+    document.getElementById('editBillNotes').value = bill.notes || '';
+    
+    openModal('editBillModal');
 }
 
-// Open pay bill modal
-async function openPayBillModal(billId) {
-    try {
-        const bill = await api.getBill(billId);
-        currentBillId = billId;
-        
-        document.getElementById('payBillInfo').innerHTML = `
-            <div style="padding: 1rem; background: var(--light); border-radius: 8px; margin-bottom: 1rem;">
-                <h4>${bill.title}</h4>
-                <p style="font-size: 1.5rem; font-weight: bold; color: var(--primary); margin: 1rem 0;">
-                    ${bill.amount.toFixed(2)} MAD
-                </p>
-                <p><strong>Catégorie:</strong> ${categoryNames[bill.category]}</p>
-                ${bill.dueDate ? `<p><strong>Échéance:</strong> ${formatDate(bill.dueDate)}</p>` : ''}
+function openPayBillModal(billId) {
+    const bill = billsState.bills.find(b => b.id === billId);
+    if (!bill) return;
+    
+    billsState.currentBill = bill;
+    
+    const infoDiv = document.getElementById('payBillInfo');
+    infoDiv.innerHTML = `
+        <div class="payment-detail-row">
+            <span class="payment-label">Facture:</span>
+            <span class="payment-value">${escapeHtml(bill.title)}</span>
+        </div>
+        <div class="payment-detail-row">
+            <span class="payment-label">Montant:</span>
+            <span class="payment-value payment-amount">${Number(bill.amount).toFixed(2)} MAD</span>
+        </div>
+        ${bill.accountNumber ? `
+            <div class="payment-detail-row">
+                <span class="payment-label">Compte:</span>
+                <span class="payment-value">${escapeHtml(bill.accountNumber)}</span>
             </div>
-            <p style="color: var(--warning);">⚠️ Le montant sera déduit de votre portefeuille.</p>
-        `;
-        
-        document.getElementById('payBillModal').style.display = 'block';
-    } catch (error) {
-        alert('Erreur: ' + error.message);
+        ` : ''}
+        ${bill.dueDate ? `
+            <div class="payment-detail-row">
+                <span class="payment-label">Échéance:</span>
+                <span class="payment-value">${formatDate(bill.dueDate)}</span>
+            </div>
+        ` : ''}
+    `;
+    
+    openModal('payBillModal');
+}
+
+function openModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
     }
 }
 
-// Close modal
 function closeModal(modalId) {
-    document.getElementById(modalId).style.display = 'none';
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.classList.remove('active');
+        document.body.style.overflow = '';
+    }
 }
 
-// Create bill form handler
-document.getElementById('createBillForm').addEventListener('submit', async (e) => {
+function closeModals() {
+    document.querySelectorAll('.modal').forEach(modal => {
+        modal.classList.remove('active');
+    });
+    document.body.style.overflow = '';
+}
+
+// ============================================
+// BILL CRUD OPERATIONS
+// ============================================
+async function handleCreateBill(e) {
     e.preventDefault();
     
     const billData = {
         title: document.getElementById('billTitle').value,
-        amount: parseFloat(document.getElementById('billAmount').value),
+        amount: Number(document.getElementById('billAmount').value),
         category: document.getElementById('billCategory').value,
-        dueDate: document.getElementById('billDueDate').value || undefined,
-        accountNumber: document.getElementById('billAccountNumber').value || undefined,
-        notes: document.getElementById('billNotes').value || undefined
+        dueDate: document.getElementById('billDueDate').value || null,
+        accountNumber: document.getElementById('billAccountNumber').value || null,
+        notes: document.getElementById('billNotes').value || null,
     };
     
+    showLoader("Création de la facture...");
+    
     try {
-        await api.createBill(billData);
+        const response = await fetch(`${API_BASE}/bills`, {
+            method: 'POST',
+            headers: getAuthHeaders(),
+            body: JSON.stringify(billData),
+        });
+        
+        const data = await response.json();
+        
+        if (!response.ok) {
+            throw new Error(data.message || "Erreur lors de la création");
+        }
+        
+        showToast("✓ Facture créée avec succès", "success");
         closeModal('createBillModal');
         await loadBills();
-        alert('Facture créée avec succès!');
+        
     } catch (error) {
-        alert('Erreur: ' + error.message);
+        console.error("Error creating bill:", error);
+        showToast(error.message || "Erreur lors de la création", "error");
+    } finally {
+        hideLoader();
     }
-});
+}
 
-// Edit bill form handler
-document.getElementById('editBillForm').addEventListener('submit', async (e) => {
+async function handleEditBill(e) {
     e.preventDefault();
     
     const billId = document.getElementById('editBillId').value;
     const billData = {
         title: document.getElementById('editBillTitle').value,
-        amount: parseFloat(document.getElementById('editBillAmount').value),
+        amount: Number(document.getElementById('editBillAmount').value),
         category: document.getElementById('editBillCategory').value,
-        dueDate: document.getElementById('editBillDueDate').value || undefined,
-        accountNumber: document.getElementById('editBillAccountNumber').value || undefined,
-        notes: document.getElementById('editBillNotes').value || undefined
+        dueDate: document.getElementById('editBillDueDate').value || null,
+        accountNumber: document.getElementById('editBillAccountNumber').value || null,
+        notes: document.getElementById('editBillNotes').value || null,
     };
     
+    showLoader("Modification de la facture...");
+    
     try {
-        await api.updateBill(billId, billData);
+        const response = await fetch(`${API_BASE}/bills/${billId}`, {
+            method: 'PUT',
+            headers: getAuthHeaders(),
+            body: JSON.stringify(billData),
+        });
+        
+        const data = await response.json();
+        
+        if (!response.ok) {
+            throw new Error(data.message || "Erreur lors de la modification");
+        }
+        
+        showToast("✓ Facture modifiée avec succès", "success");
         closeModal('editBillModal');
         await loadBills();
-        alert('Facture mise à jour avec succès!');
+        
     } catch (error) {
-        alert('Erreur: ' + error.message);
+        console.error("Error updating bill:", error);
+        showToast(error.message || "Erreur lors de la modification", "error");
+    } finally {
+        hideLoader();
     }
-});
+}
 
-// Confirm pay bill
 async function confirmPayBill() {
-    if (!currentBillId) return;
+    if (!billsState.currentBill) return;
+    
+    showLoader("Traitement du paiement...");
     
     try {
-        const result = await api.payBill(currentBillId);
+        const response = await fetch(`${API_BASE}/bills/${billsState.currentBill.id}/pay`, {
+            method: 'POST',
+            headers: getAuthHeaders(),
+        });
+        
+        const data = await response.json();
+        
+        if (!response.ok) {
+            throw new Error(data.message || "Erreur lors du paiement");
+        }
+        
+        showToast("✓ Facture payée avec succès", "success");
         closeModal('payBillModal');
+        billsState.currentBill = null;
         await loadBills();
-        alert(`Facture payée avec succès! Nouveau solde: ${result.remainingBalance.toFixed(2)} MAD`);
-        currentBillId = null;
+        
     } catch (error) {
-        alert('Erreur: ' + error.message);
+        console.error("Error paying bill:", error);
+        showToast(error.message || "Erreur lors du paiement", "error");
+    } finally {
+        hideLoader();
     }
 }
 
-// Delete bill
 async function deleteBill(billId) {
-    if (!confirm('Êtes-vous sûr de vouloir supprimer cette facture?')) return;
+    if (!confirm("Êtes-vous sûr de vouloir supprimer cette facture ?")) {
+        return;
+    }
+    
+    showLoader("Suppression de la facture...");
     
     try {
-        await api.deleteBill(billId);
+        const response = await fetch(`${API_BASE}/bills/${billId}`, {
+            method: 'DELETE',
+            headers: getAuthHeaders(),
+        });
+        
+        if (!response.ok) {
+            const data = await response.json();
+            throw new Error(data.message || "Erreur lors de la suppression");
+        }
+        
+        showToast("✓ Facture supprimée avec succès", "success");
         await loadBills();
-        alert('Facture supprimée avec succès!');
+        
     } catch (error) {
-        alert('Erreur: ' + error.message);
+        console.error("Error deleting bill:", error);
+        showToast(error.message || "Erreur lors de la suppression", "error");
+    } finally {
+        hideLoader();
     }
 }
 
-// Logout function
-function logout() {
-    api.clearToken();
-    window.location.href = 'login.html';
+// ============================================
+// EXPORT FUNCTIONALITY
+// ============================================
+async function exportBills() {
+    showLoader("Génération du fichier...");
+    
+    try {
+        // Prepare CSV data
+        const csvData = [
+            ['Titre', 'Montant', 'Catégorie', 'Statut', 'Échéance', 'Compte', 'Notes'].join(',')
+        ];
+        
+        billsState.bills.forEach(bill => {
+            csvData.push([
+                `"${bill.title}"`,
+                bill.amount,
+                bill.category,
+                bill.status,
+                bill.dueDate || '',
+                bill.accountNumber || '',
+                `"${bill.notes || ''}"`
+            ].join(','));
+        });
+        
+        const csvContent = csvData.join('\n');
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        
+        link.setAttribute('href', url);
+        link.setAttribute('download', `factures_sanapay_${new Date().toISOString().split('T')[0]}.csv`);
+        link.style.visibility = 'hidden';
+        
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        showToast("✓ Export réussi", "success");
+        
+    } catch (error) {
+        console.error("Error exporting bills:", error);
+        showToast("Erreur lors de l'export", "error");
+    } finally {
+        hideLoader();
+    }
 }
 
-// Load bills on page load
-loadBills();
+// ============================================
+// UI HELPERS
+// ============================================
+function showLoader(message = "Chargement...") {
+    const loader = document.getElementById('globalLoader');
+    const messageEl = loader?.querySelector('.loader-message');
+    if (messageEl) messageEl.textContent = message;
+    loader?.classList.add('show');
+}
+
+function hideLoader() {
+    const loader = document.getElementById('globalLoader');
+    loader?.classList.remove('show');
+}
+
+function showToast(message, type = 'info') {
+    const container = document.getElementById('toastContainer');
+    if (!container) return;
+    
+    const icons = {
+        success: '✓',
+        error: '✕',
+        warning: '⚠',
+        info: 'ℹ'
+    };
+    
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type}`;
+    toast.innerHTML = `
+        <div class="toast-icon">${icons[type] || icons.info}</div>
+        <div class="toast-content">
+            <div class="toast-message">${message}</div>
+        </div>
+        <button class="toast-close">✕</button>
+    `;
+    
+    container.appendChild(toast);
+    
+    // Show animation
+    setTimeout(() => toast.classList.add('show'), 10);
+    
+    // Close button
+    toast.querySelector('.toast-close').addEventListener('click', () => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 300);
+    });
+    
+    // Auto remove
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 300);
+    }, 5000);
+}
+
+// ============================================
+// UTILITY FUNCTIONS
+// ============================================
+function getCategoryIcon(category) {
+    const icons = {
+        ELECTRICITY: '⚡',
+        WATER: '💧',
+        INTERNET: '🌐',
+        PHONE: '📱',
+        GAS: '🔥',
+        INSURANCE: '🛡️',
+        SUBSCRIPTION: '📺',
+        RENT: '🏠',
+        OTHER: '📋'
+    };
+    return icons[category] || '📋';
+}
+
+function getStatusText(status) {
+    const texts = {
+        PENDING: 'En attente',
+        PAID: 'Payée',
+        OVERDUE: 'En retard',
+        CANCELLED: 'Annulée'
+    };
+    return texts[status] || status;
+}
+
+function formatDate(dateString) {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('fr-FR', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    });
+}
+
+function getDaysUntilDue(dueDate) {
+    if (!dueDate) return null;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const due = new Date(dueDate);
+    due.setHours(0, 0, 0, 0);
+    const diffTime = due - today;
+    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+}
+
+function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+function logout() {
+    localStorage.removeItem("access_token");
+    window.location.href = "login.html";
+}
+
+// ============================================
+// GLOBAL EXPORTS
+// ============================================
+window.openCreateBillModal = openCreateBillModal;
+window.openEditBillModal = openEditBillModal;
+window.openPayBillModal = openPayBillModal;
+window.confirmPayBill = confirmPayBill;
+window.deleteBill = deleteBill;
+window.closeModal = closeModal;
+window.closeModals = closeModals;
+window.filterBills = filterBills;
+window.exportBills = exportBills;
+window.logout = logout;
+window.handleCreateBill = handleCreateBill;
+window.handleEditBill = handleEditBill;
