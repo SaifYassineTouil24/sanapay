@@ -20,7 +20,7 @@ async function loadAnalytics() {
 async function loadSummary() {
     try {
         const summary = await api.getAnalyticsSummary();
-        
+
         document.getElementById('currentBalance').textContent = `${summary.balance.toFixed(2)} MAD`;
         document.getElementById('totalDeposits').textContent = `${summary.totalDeposits.toFixed(2)} MAD`;
         document.getElementById('totalWithdrawals').textContent = `${summary.totalWithdrawals.toFixed(2)} MAD`;
@@ -35,11 +35,15 @@ async function loadMonthlyChart() {
     try {
         const data = await api.getMonthlyAnalytics();
         const ctx = document.getElementById('monthlyChart').getContext('2d');
-        
+
         if (monthlyChart) {
             monthlyChart.destroy();
         }
-        
+
+        // Dark Mode Colors
+        Chart.defaults.color = '#9ca3af';
+        Chart.defaults.borderColor = 'rgba(75, 85, 99, 0.4)';
+
         monthlyChart = new Chart(ctx, {
             type: 'bar',
             data: {
@@ -48,42 +52,35 @@ async function loadMonthlyChart() {
                     {
                         label: 'Dépôts',
                         data: data.months.map(m => m.deposits),
-                        backgroundColor: 'rgba(72, 187, 120, 0.6)',
-                        borderColor: '#48bb78',
-                        borderWidth: 2
+                        backgroundColor: '#10b981',
+                        borderRadius: 4,
+                        barPercentage: 0.6,
                     },
                     {
                         label: 'Retraits',
                         data: data.months.map(m => m.withdrawals),
-                        backgroundColor: 'rgba(245, 101, 101, 0.6)',
-                        borderColor: '#f56565',
-                        borderWidth: 2
+                        backgroundColor: '#ef4444',
+                        borderRadius: 4,
+                        barPercentage: 0.6,
                     }
                 ]
             },
             options: {
                 responsive: true,
-                maintainAspectRatio: true,
+                maintainAspectRatio: false,
                 plugins: {
                     legend: {
                         position: 'top',
+                        labels: { color: '#e5e7eb' }
                     },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                return context.dataset.label + ': ' + context.parsed.y.toFixed(2) + ' MAD';
-                            }
-                        }
-                    }
                 },
                 scales: {
                     y: {
                         beginAtZero: true,
-                        ticks: {
-                            callback: function(value) {
-                                return value + ' MAD';
-                            }
-                        }
+                        grid: { borderDash: [4, 4] }
+                    },
+                    x: {
+                        grid: { display: false }
                     }
                 }
             }
@@ -97,30 +94,22 @@ async function loadMonthlyChart() {
 async function loadCategoryChart() {
     try {
         const data = await api.getCategoryAnalytics();
-        
-        // Display top bills
+
+        // Display top bills (HTML generation remains same, ensuring classes match CSS)
         const topBillsContainer = document.getElementById('topBillsContainer');
         if (data.topBills && data.topBills.length > 0) {
             topBillsContainer.innerHTML = `
-                <table style="width: 100%; border-collapse: collapse;">
-                    <thead>
-                        <tr style="border-bottom: 2px solid var(--border);">
-                            <th style="text-align: left; padding: 0.75rem;">Titre</th>
-                            <th style="text-align: left; padding: 0.75rem;">Catégorie</th>
-                            <th style="text-align: right; padding: 0.75rem;">Montant</th>
-                            <th style="text-align: center; padding: 0.75rem;">Statut</th>
-                        </tr>
-                    </thead>
+                <table style="width: 100%; border-collapse: separate; border-spacing: 0 8px;">
                     <tbody>
                         ${data.topBills.map(bill => `
-                            <tr style="border-bottom: 1px solid var(--border);">
-                                <td style="padding: 0.75rem;">${bill.title}</td>
-                                <td style="padding: 0.75rem;">${getCategoryName(bill.category)}</td>
-                                <td style="padding: 0.75rem; text-align: right; font-weight: bold; color: var(--primary);">
+                            <tr style="background: var(--bg-tertiary); border-radius: 8px;">
+                                <td style="padding: 12px; border-radius: 8px 0 0 8px; color: var(--text-primary); font-weight:500;">${bill.title}</td>
+                                <td style="padding: 12px; color: var(--text-secondary);">${getCategoryName(bill.category)}</td>
+                                <td style="padding: 12px; text-align: right; font-weight: 700; color: var(--text-primary);">
                                     ${bill.amount.toFixed(2)} MAD
                                 </td>
-                                <td style="padding: 0.75rem; text-align: center;">
-                                    <span class="bill-status ${bill.status.toLowerCase()}">${getStatusText(bill.status)}</span>
+                                <td style="padding: 12px; text-align: center; border-radius: 0 8px 8px 0;">
+                                    <span class="bill-status-badge ${bill.status.toLowerCase()}">${getStatusText(bill.status)}</span>
                                 </td>
                             </tr>
                         `).join('')}
@@ -128,52 +117,41 @@ async function loadCategoryChart() {
                 </table>
             `;
         } else {
-            topBillsContainer.innerHTML = '<p class="text-center">Aucune facture trouvée</p>';
+            topBillsContainer.innerHTML = '<p class="text-center" style="padding:20px;">Aucune facture trouvée</p>';
         }
-        
+
         // Create pie chart
         if (data.categories && data.categories.length > 0) {
             const ctx = document.getElementById('categoryChart').getContext('2d');
-            
+
             if (categoryChart) {
                 categoryChart.destroy();
             }
-            
-            const colors = [
-                '#667eea', '#764ba2', '#48bb78', '#f56565', '#ed8936',
-                '#4299e1', '#9f7aea', '#38b2ac', '#f687b3'
-            ];
-            
+
+            const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#6366f1', '#14b8a6'];
+
             categoryChart = new Chart(ctx, {
-                type: 'pie',
+                type: 'doughnut',
                 data: {
                     labels: data.categories.map(c => getCategoryName(c.category)),
                     datasets: [{
                         data: data.categories.map(c => c.total),
-                        backgroundColor: colors.slice(0, data.categories.length),
+                        backgroundColor: colors,
+                        borderColor: '#1f2937',
                         borderWidth: 2,
-                        borderColor: '#fff'
+                        hoverOffset: 4
                     }]
                 },
                 options: {
                     responsive: true,
-                    maintainAspectRatio: true,
+                    maintainAspectRatio: false,
                     plugins: {
                         legend: {
-                            position: 'bottom',
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    const label = context.label || '';
-                                    const value = context.parsed || 0;
-                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                    const percentage = ((value / total) * 100).toFixed(1);
-                                    return `${label}: ${value.toFixed(2)} MAD (${percentage}%)`;
-                                }
-                            }
+                            position: 'right',
+                            labels: { color: '#e5e7eb', boxWidth: 12 }
                         }
-                    }
+                    },
+                    cutout: '70%'
                 }
             });
         }
@@ -187,68 +165,49 @@ async function loadYearlyChart() {
     try {
         const data = await api.getYearlyAnalytics();
         const ctx = document.getElementById('yearlyChart').getContext('2d');
-        
+
         if (yearlyChart) {
             yearlyChart.destroy();
         }
-        
+
         yearlyChart = new Chart(ctx, {
             type: 'line',
             data: {
                 labels: data.years.map(y => y.year),
                 datasets: [
                     {
-                        label: 'Dépôts',
-                        data: data.years.map(y => y.deposits),
-                        borderColor: '#48bb78',
-                        backgroundColor: 'rgba(72, 187, 120, 0.1)',
-                        borderWidth: 3,
-                        tension: 0.4,
-                        fill: true
-                    },
-                    {
-                        label: 'Retraits',
-                        data: data.years.map(y => y.withdrawals),
-                        borderColor: '#f56565',
-                        backgroundColor: 'rgba(245, 101, 101, 0.1)',
-                        borderWidth: 3,
-                        tension: 0.4,
-                        fill: true
-                    },
-                    {
                         label: 'Net',
                         data: data.years.map(y => y.net),
-                        borderColor: '#667eea',
-                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
                         borderWidth: 3,
+                        pointBackgroundColor: '#3b82f6',
                         tension: 0.4,
                         fill: true
+                    },
+                    {
+                        label: 'Revenus',
+                        data: data.years.map(y => y.deposits),
+                        borderColor: '#10b981',
+                        borderWidth: 2,
+                        borderDash: [5, 5],
+                        pointRadius: 0,
+                        tension: 0.4
                     }
                 ]
             },
             options: {
                 responsive: true,
-                maintainAspectRatio: true,
+                maintainAspectRatio: false,
                 plugins: {
-                    legend: {
-                        position: 'top',
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                return context.dataset.label + ': ' + context.parsed.y.toFixed(2) + ' MAD';
-                            }
-                        }
-                    }
+                    legend: { labels: { color: '#e5e7eb' } }
                 },
                 scales: {
                     y: {
-                        beginAtZero: true,
-                        ticks: {
-                            callback: function(value) {
-                                return value + ' MAD';
-                            }
-                        }
+                        grid: { color: 'rgba(75, 85, 99, 0.2)' }
+                    },
+                    x: {
+                        grid: { display: false }
                     }
                 }
             }

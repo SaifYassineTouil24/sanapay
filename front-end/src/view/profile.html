@@ -1,11 +1,14 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profil - SanaPay</title>
-    <link rel="stylesheet" href="/front-end/src/css/style1.css">
+    <link rel="stylesheet" href="../css/account-dark.css">
+    <link rel="stylesheet" href="../css/ui-components.css">
 </head>
+
 <body>
     <div class="app-container">
         <aside class="sidebar">
@@ -35,38 +38,22 @@
                     <div class="form-row">
                         <div class="form-group">
                             <label for="firstName">Prénom</label>
-                            <input 
-                                type="text" 
-                                id="firstName" 
-                                required 
-                                minlength="2"
-                                maxlength="50">
+                            <input type="text" id="firstName" required minlength="2" maxlength="50">
                         </div>
                         <div class="form-group">
                             <label for="lastName">Nom</label>
-                            <input 
-                                type="text" 
-                                id="lastName" 
-                                required 
-                                minlength="2"
-                                maxlength="50">
+                            <input type="text" id="lastName" required minlength="2" maxlength="50">
                         </div>
                     </div>
                     <div class="form-group">
                         <label for="email">Email</label>
-                        <input 
-                            type="email" 
-                            id="email" 
-                            disabled
+                        <input type="email" id="email" disabled
                             style="background-color: var(--light); cursor: not-allowed;">
                         <small>L'email ne peut pas être modifié</small>
                     </div>
                     <div class="form-group">
                         <label for="phone">Téléphone</label>
-                        <input 
-                            type="tel" 
-                            id="phone" 
-                            placeholder="+212600000000">
+                        <input type="tel" id="phone" placeholder="+212600000000">
                     </div>
                     <button type="submit" class="btn btn-primary">Mettre à jour le profil</button>
                     <div id="profile-message" style="margin-top: 1rem;"></div>
@@ -79,30 +66,16 @@
                 <form id="passwordForm">
                     <div class="form-group">
                         <label for="oldPassword">Mot de passe actuel</label>
-                        <input 
-                            type="password" 
-                            id="oldPassword" 
-                            required
-                            autocomplete="current-password">
+                        <input type="password" id="oldPassword" required autocomplete="current-password">
                     </div>
                     <div class="form-group">
                         <label for="newPassword">Nouveau mot de passe</label>
-                        <input 
-                            type="password" 
-                            id="newPassword" 
-                            required 
-                            minlength="8"
-                            autocomplete="new-password">
+                        <input type="password" id="newPassword" required minlength="8" autocomplete="new-password">
                         <small>Min 8 caractères avec majuscule, minuscule et chiffre</small>
                     </div>
                     <div class="form-group">
                         <label for="confirmPassword">Confirmer le nouveau mot de passe</label>
-                        <input 
-                            type="password" 
-                            id="confirmPassword" 
-                            required 
-                            minlength="8"
-                            autocomplete="new-password">
+                        <input type="password" id="confirmPassword" required minlength="8" autocomplete="new-password">
                     </div>
                     <button type="submit" class="btn btn-primary">Changer le mot de passe</button>
                     <div id="password-message" style="margin-top: 1rem;"></div>
@@ -119,7 +92,8 @@
                     </div>
                     <div>
                         <label style="font-weight: 600; color: #718096; font-size: 0.9rem;">Solde Actuel</label>
-                        <p style="font-size: 1.5rem; font-weight: bold; color: var(--success);" id="walletBalance">0 MAD</p>
+                        <p style="font-size: 1.5rem; font-weight: bold; color: var(--success);" id="walletBalance">0 MAD
+                        </p>
                     </div>
                     <div>
                         <label style="font-weight: 600; color: #718096; font-size: 0.9rem;">Devise</label>
@@ -166,4 +140,5 @@
     <script src="../js/api.js"></script>
     <script src="../js/profile.js"></script>
 </body>
+
 </html>

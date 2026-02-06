@@ -16,15 +16,15 @@ export class EwalletService {
 
     @InjectRepository(Transaction)
     private readonly txRepo: Repository<Transaction>,
-  ) {}
+  ) { }
 
   async createWallet(userId: number): Promise<Ewallet> {
     const wallet = this.ewalletRepo.create({
       userId,
       walletNumber: `WALLET-${Date.now()}`,
-      balance: '0',
-      totalDeposited: '0',
-      totalWithdrawn: '0',
+      balance: 0,
+      totalDeposited: 0,
+      totalWithdrawn: 0,
       currency: 'MAD',
       status: WalletStatus.ACTIVE,
     });
@@ -47,26 +47,24 @@ export class EwalletService {
       throw new BadRequestException('Wallet not active');
     }
 
-    const balanceBefore = parseFloat(wallet.balance);
+    const balanceBefore = wallet.balance;
     const balanceAfter = balanceBefore + amount;
 
-    wallet.balance = balanceAfter.toFixed(2);
-    wallet.totalDeposited = (
-      parseFloat(wallet.totalDeposited) + amount
-    ).toFixed(2);
+    wallet.balance = balanceAfter;
+    wallet.totalDeposited = wallet.totalDeposited + amount;
 
     await this.ewalletRepo.save(wallet);
 
     const tx = this.txRepo.create({
       type: TransactionType.DEPOSIT,
-      amount: amount.toFixed(2),
+      amount: amount,
       status: TransactionStatus.COMPLETED,
       description: 'Deposit',
       reference: `DEP-${Date.now()}`,
-      balanceBefore: balanceBefore.toFixed(2),
-      balanceAfter: balanceAfter.toFixed(2),
+      balanceBefore: balanceBefore,
+      balanceAfter: balanceAfter,
       walletId: wallet.id,
-      
+
     });
 
     await this.txRepo.save(tx);
@@ -76,7 +74,7 @@ export class EwalletService {
 
   async withdraw(userId: number, amount: number): Promise<Ewallet> {
     const wallet = await this.getWalletByUserId(userId);
-    const balanceBefore = parseFloat(wallet.balance);
+    const balanceBefore = wallet.balance;
 
     if (balanceBefore < amount) {
       throw new BadRequestException('Insufficient balance');
@@ -84,23 +82,21 @@ export class EwalletService {
 
     const balanceAfter = balanceBefore - amount;
 
-    wallet.balance = balanceAfter.toFixed(2);
-    wallet.totalWithdrawn = (
-      parseFloat(wallet.totalWithdrawn) + amount
-    ).toFixed(2);
+    wallet.balance = balanceAfter;
+    wallet.totalWithdrawn = wallet.totalWithdrawn + amount;
 
     await this.ewalletRepo.save(wallet);
 
     const tx = this.txRepo.create({
       type: TransactionType.WITHDRAW,
-      amount: amount.toFixed(2),
+      amount: amount,
       status: TransactionStatus.COMPLETED,
       description: 'Withdraw',
       reference: `WTH-${Date.now()}`,
-      balanceBefore: balanceBefore.toFixed(2),
-      balanceAfter: balanceAfter.toFixed(2),
+      balanceBefore: balanceBefore,
+      balanceAfter: balanceAfter,
       walletId: wallet.id,
-   
+
     });
 
     await this.txRepo.save(tx);
@@ -108,18 +104,18 @@ export class EwalletService {
     return wallet;
   }
   async getWalletByNumber(walletNumber: string) {
-  const wallet = await this.ewalletRepo.findOne({
-    where: { walletNumber },
-  });
+    const wallet = await this.ewalletRepo.findOne({
+      where: { walletNumber },
+    });
 
-  if (!wallet) {
-    throw new BadRequestException('Portefeuille introuvable');
+    if (!wallet) {
+      throw new BadRequestException('Portefeuille introuvable');
+    }
+
+    return wallet;
   }
-
-  return wallet;
-}
-async saveWallet(wallet: Ewallet) {
-  return this.ewalletRepo.save(wallet);
-}
+  async saveWallet(wallet: Ewallet) {
+    return this.ewalletRepo.save(wallet);
+  }
 
 }

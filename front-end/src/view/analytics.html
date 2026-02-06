@@ -1,90 +1,226 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" class="dark-mode">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Analytics - SanaPay</title>
-    <link rel="stylesheet" href="/front-end/src/css/analytics.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+    <link rel="stylesheet" href="../css/account-dark.css">
+    <link rel="stylesheet" href="../css/ui-components.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+    <style>
+        /* Specific Analytics Overrides */
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+            margin-top: 24px;
+        }
+
+        @media (max-width: 992px) {
+            .analytics-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .chart-card {
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            padding: 24px;
+            border: 1px solid var(--border-color);
+            min-height: 400px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chart-header h3 {
+            font-size: 1.1rem;
+            color: var(--text-primary);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+    </style>
 </head>
+
 <body>
-    <div class="app-container">
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <h2>💳 SanaPay</h2>
-            </div>
-            <nav class="sidebar-nav">
-                <a href="account.html">📊 Dashboard</a>
-                <a href="bills.html">📝 Factures</a>
-                <a href="analytics.html" class="active">📈 Analytics</a>
-                <a href="profile.html">👤 Profil</a>
-            </nav>
-            <div class="sidebar-footer">
-                <button onclick="logout()" class="btn btn-outline btn-block">Déconnexion</button>
-            </div>
-        </aside>
+    <script src="../controller/guards.js"></script>
 
-        <main class="main-content">
-            <header class="page-header">
-                <h1>Analytics Financiers</h1>
-            </header>
+    <!-- Logo Header -->
+    <header class="logo-header">
+        <div class="container">
+            <a href="index.html" class="brand-logo" aria-label="Accueil SanaPay">
+                <div class="logo-icon">S</div>
+                <span class="logo-text">SanaPay</span>
+            </a>
 
-            <!-- Summary Cards -->
-            <div class="dashboard-grid">
-                <div class="card">
-                    <h4>Solde Actuel</h4>
-                    <div class="stat-value" id="currentBalance">0 MAD</div>
-                </div>
-                <div class="card">
-                    <h4>Total Dépôts</h4>
-                    <div class="stat-value" style="color: var(--success);" id="totalDeposits">0 MAD</div>
-                </div>
-                <div class="card">
-                    <h4>Total Retraits</h4>
-                    <div class="stat-value" style="color: var(--danger);" id="totalWithdrawals">0 MAD</div>
-                </div>
-                <div class="card">
-                    <h4>Total de transfert</h4>
-                    <div class="stat-value" style="color: var(--warning);" id="pendingBills">0 MAD</div>
-                </div>
-                <div class="card">
-                    <h4>Factures en Attente</h4>
-                    <div class="stat-value" style="color: var(--warning);" id="pendingBills">0</div>
-                </div>
-                
+            <div class="header-right">
+                <button class="theme-toggle" onclick="toggleTheme()" aria-label="Changer de thème">
+                    <i class="fas fa-moon"></i>
+                </button>
+
+                <nav class="header-nav" style="display:flex; gap:15px; margin-right:15px;">
+                    <a href="dashboard.html"
+                        style="color:var(--text-secondary); text-decoration:none; transition: color 0.3s;"
+                        onmouseover="this.style.color='var(--text-primary)'"
+                        onmouseout="this.style.color='var(--text-secondary)'">Dashboard</a>
+                    <a href="bills.html"
+                        style="color:var(--text-secondary); text-decoration:none; transition: color 0.3s;"
+                        onmouseover="this.style.color='var(--text-primary)'"
+                        onmouseout="this.style.color='var(--text-secondary)'">Factures</a>
+                    <a href="analytics.html" class="active"
+                        style="color:var(--primary-blue); font-weight:600;">Analytics</a>
+                    <a href="account.html"
+                        style="color:var(--text-secondary); text-decoration:none; transition: color 0.3s;"
+                        onmouseover="this.style.color='var(--text-primary)'"
+                        onmouseout="this.style.color='var(--text-secondary)'">Compte</a>
+                </nav>
+
+                <button class="btn-logout-header" onclick="logout()" aria-label="Déconnexion">
+                    <i class="fas fa-sign-out-alt" aria-hidden="true"></i>
+                    <span>Déconnexion</span>
+                </button>
             </div>
+        </div>
+    </header>
 
-            <!-- Monthly Analytics Chart -->
-            <div class="card">
-                <h3>Dépenses vs Revenus (12 derniers mois)</h3>
-                <canvas id="monthlyChart"></canvas>
-            </div>
+    <!-- Main Content -->
+    <main class="dashboard-wrapper">
+        <div class="dashboard-container">
 
-            <!-- Category Analytics -->
-            <div class="card">
-                <h3>Répartition des Dépenses par Catégorie</h3>
-                <div style="max-width: 500px; margin: 0 auto;">
-                    <canvas id="categoryChart"></canvas>
-                </div>
-            </div>
-
-            <!-- Yearly Comparison -->
-            <div class="card">
-                <h3>Évolution Annuelle</h3>
-                <canvas id="yearlyChart"></canvas>
-            </div>
-
-            <!-- Top Bills -->
-            <div class="card">
-                <h3>Top 5 Factures les Plus Élevées</h3>
-                <div id="topBillsContainer">
-                    <p class="text-center loading">Chargement...</p>
+            <!-- Page Header -->
+            <div class="page-header" style="padding: 30px;">
+                <div class="page-header-content">
+                    <div class="user-avatar-section">
+                        <div class="user-avatar"
+                            style="width: 60px; height: 60px; background: linear-gradient(135deg, #10b981, #059669); font-size: 1.5rem;">
+                            <i class="fas fa-chart-pie" style="color: white;"></i>
+                        </div>
+                        <div class="user-info-text">
+                            <h1 style="font-size: 1.8rem; margin-bottom: 5px;">Analytics Financiers</h1>
+                            <p style="margin-bottom: 0;">Analysez vos habitudes de dépenses et revenus</p>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </main>
-    </div>
 
-    <script src="/front-end/src/controller/api.js"></script>
-    <script src="/front-end/src/controller/analytics.js"></script>
+            <!-- Summary Stats Grid -->
+            <div class="stats-card">
+                <div class="stats-header">
+                    <h2>Résumé Global</h2>
+                </div>
+                <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+                    <div class="stat-item">
+                        <div class="stat-icon"><i class="fas fa-wallet"></i></div>
+                        <div class="stat-content">
+                            <div class="stat-label">Solde Actuel</div>
+                            <div class="stat-value" id="currentBalance">0 MAD</div>
+                        </div>
+                    </div>
+                    <div class="stat-item success">
+                        <div class="stat-icon"><i class="fas fa-arrow-down"></i></div>
+                        <div class="stat-content">
+                            <div class="stat-label">Total Dépôts</div>
+                            <div class="stat-value" id="totalDeposits">0 MAD</div>
+                        </div>
+                    </div>
+                    <div class="stat-item danger">
+                        <div class="stat-icon"><i class="fas fa-arrow-up"></i></div>
+                        <div class="stat-content">
+                            <div class="stat-label">Total Retraits</div>
+                            <div class="stat-value" id="totalWithdrawals">0 MAD</div>
+                        </div>
+                    </div>
+                    <div class="stat-item warning">
+                        <div class="stat-icon"><i class="fas fa-file-invoice"></i></div>
+                        <div class="stat-content">
+                            <div class="stat-label">Factures au total</div>
+                            <div class="stat-value" id="pendingBills">0</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Grid -->
+            <div class="analytics-grid">
+
+                <!-- Monthly Chart -->
+                <div class="chart-card" style="grid-column: span 2;">
+                    <div class="chart-header">
+                        <h3><i class="fas fa-chart-area"></i> Dépenses vs Revenus (12 derniers mois)</h3>
+                    </div>
+                    <div style="flex-grow: 1; position: relative;">
+                        <canvas id="monthlyChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Category Chart -->
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3><i class="fas fa-chart-pie"></i> Répartition par Catégorie</h3>
+                    </div>
+                    <div
+                        style="flex-grow: 1; position: relative; display:flex; justify-content:center; align-items:center;">
+                        <canvas id="categoryChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Yearly/Top Bills Chart Area -->
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3><i class="fas fa-trophy"></i> Top 5 Factures les Plus Élevées</h3>
+                    </div>
+                    <div id="topBillsContainer" class="transactions-list" style="overflow-y: auto; max-height: 300px;">
+                        <p class="text-center loading" style="color:var(--text-tertiary); padding: 20px;">Chargement...
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Yearly Evolution -->
+                <div class="chart-card" style="grid-column: span 2;">
+                    <div class="chart-header">
+                        <h3><i class="fas fa-chart-line"></i> Évolution Annuelle</h3>
+                    </div>
+                    <div style="flex-grow: 1; position: relative;">
+                        <canvas id="yearlyChart"></canvas>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </main>
+
+    <script src="../controller/api.js"></script>
+    <script src="../controller/analytics.js"></script>
+
+    <script>
+        function toggleTheme() {
+            document.documentElement.classList.toggle('dark-mode');
+            const isDark = document.documentElement.classList.contains('dark-mode');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+
+            const icon = document.querySelector('.theme-toggle i');
+            icon.className = isDark ? 'fas fa-sun' : 'fas fa-moon';
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            if (savedTheme === 'dark') {
+                document.documentElement.classList.add('dark-mode');
+                document.querySelector('.theme-toggle i').className = 'fas fa-sun';
+            }
+        });
+    </script>
 </body>
+
 </html>

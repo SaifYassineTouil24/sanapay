@@ -21,13 +21,13 @@ export class Transaction {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ type: 'enum', enum: TransactionType })
+  @Column({ type: 'simple-enum', enum: TransactionType })
   type: TransactionType;
 
-  @Column({ type: 'decimal', precision: 12, scale: 2 })
-  amount: string;
+  @Column({ type: 'real' })
+  amount: number;
 
-  @Column({ type: 'enum', enum: TransactionStatus })
+  @Column({ type: 'simple-enum', enum: TransactionStatus })
   status: TransactionStatus;
 
   @Column({ nullable: true })
@@ -39,11 +39,11 @@ export class Transaction {
   @Column()
   walletId: string;
 
-  @Column({ type: 'decimal', precision: 12, scale: 2, nullable: true })
-  balanceBefore?: string;
+  @Column({ type: 'real', nullable: true })
+  balanceBefore?: number;
 
-  @Column({ type: 'decimal', precision: 12, scale: 2, nullable: true })
-  balanceAfter?: string;
+  @Column({ type: 'real', nullable: true })
+  balanceAfter?: number;
 
   @CreateDateColumn()
   createdAt: Date;

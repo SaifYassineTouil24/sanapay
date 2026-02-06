@@ -1,140 +1,291 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" class="dark-mode">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - SanaPay</title>
-    <link rel="stylesheet" href="/front-end/src/css/style1.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-</head>
-<body>
-    <div class="app-container">
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <h2>💳 SanaPay</h2>
-            </div>
-            <nav class="sidebar-nav">
-                <a href="dashboard.html" class="active">📊 Dashboard</a>
-                <a href="bills.html">📝 Factures</a>
-                <a href="analytics.html">📈 Analytics</a>
-                <a href="account.html">👤 Profil</a>
-            </nav>
-            <div class="sidebar-footer">
-                <button onclick="logout()" class="btn btn-outline btn-block">Déconnexion</button>
-            </div>
-        </aside>
 
-        <main class="main-content">
-            <header class="page-header">
-                <h1>Dashboard</h1>
-                <div class="user-info">
-                    <span id="userName">Chargement...</span>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+    <link rel="stylesheet" href="../css/account-dark.css">
+    <link rel="stylesheet" href="../css/ui-components.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+    <style>
+        /* Specific Dashboard Overrides */
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <script src="../controller/guards.js"></script>
+
+    <!-- Logo Header -->
+    <header class="logo-header">
+        <div class="container">
+            <a href="index.html" class="brand-logo" aria-label="Accueil SanaPay">
+                <div class="logo-icon">S</div>
+                <span class="logo-text">SanaPay</span>
+            </a>
+
+            <div class="header-right">
+                <button class="theme-toggle" onclick="toggleTheme()" aria-label="Changer de thème">
+                    <i class="fas fa-moon"></i>
+                </button>
+
+                <nav class="header-nav" style="display:flex; gap:15px; margin-right:15px;">
+                    <a href="dashboard.html" class="active"
+                        style="color:var(--primary-blue); font-weight:600;">Dashboard</a>
+                    <a href="bills.html"
+                        style="color:var(--text-secondary); text-decoration:none; transition: color 0.3s;"
+                        onmouseover="this.style.color='var(--text-primary)'"
+                        onmouseout="this.style.color='var(--text-secondary)'">Factures</a>
+                    <a href="analytics.html"
+                        style="color:var(--text-secondary); text-decoration:none; transition: color 0.3s;"
+                        onmouseover="this.style.color='var(--text-primary)'"
+                        onmouseout="this.style.color='var(--text-secondary)'">Analytics</a>
+                    <a href="account.html"
+                        style="color:var(--text-secondary); text-decoration:none; transition: color 0.3s;"
+                        onmouseover="this.style.color='var(--text-primary)'"
+                        onmouseout="this.style.color='var(--text-secondary)'">Compte</a>
+                </nav>
+
+                <button class="btn-logout-header" onclick="logout()" aria-label="Déconnexion">
+                    <i class="fas fa-sign-out-alt" aria-hidden="true"></i>
+                    <span>Déconnexion</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="dashboard-wrapper">
+        <div class="dashboard-container">
+
+            <!-- Page Header -->
+            <div class="page-header">
+                <div class="page-header-content">
+                    <div class="user-avatar-section">
+                        <div class="user-avatar">
+                            <img src="https://ui-avatars.com/api/?name=User&background=3b82f6&color=fff&size=128&bold=true"
+                                alt="Avatar" id="userAvatar" />
+                        </div>
+                        <div class="user-info-text">
+                            <h1 id="userName">Chargement...</h1>
+                            <p>Aperçu général de votre situation financière</p>
+                        </div>
+                    </div>
+                    <div class="header-actions">
+                        <button class="btn-header btn-settings" onclick="window.location.href='settings.html'">
+                            <i class="fas fa-cog"></i> Paramètres
+                        </button>
+                    </div>
                 </div>
-            </header>
+            </div>
 
             <div class="dashboard-grid">
-                <div class="card balance-card">
-                    <h3>Solde Actuel</h3>
-                    <div class="balance-amount" id="balance">0 MAD</div>
-                    <div class="balance-actions">
-                        <button onclick="openDepositModal()" class="btn btn-sm btn-outline">💰 Déposer</button>
-                        <button onclick="openWithdrawModal()" class="btn btn-sm btn-outline">💸 Retirer</button>
+
+                <!-- Wallet / Balance Card -->
+                <div class="wallet-card">
+                    <div class="wallet-decoration">
+                        <div class="decoration-circle circle-1"></div>
+                        <div class="decoration-circle circle-2"></div>
+                    </div>
+
+                    <div class="wallet-header">
+                        <div class="wallet-title"><i class="fas fa-wallet"></i> Solde Actuel</div>
+                    </div>
+
+                    <div class="wallet-balance">
+                        <div class="balance-amount" id="balance">0.00 MAD</div>
+                    </div>
+
+                    <div class="wallet-actions">
+                        <button class="wallet-action-btn" onclick="openModal('depositModal')">
+                            <i class="fas fa-plus"></i> Déposer
+                        </button>
+                        <button class="wallet-action-btn" onclick="openModal('withdrawModal')">
+                            <i class="fas fa-minus"></i> Retirer
+                        </button>
                     </div>
                 </div>
 
-                <div class="card stats-card">
-                    <h4>Dépôts (ce mois)</h4>
-                    <div class="stat-value" id="monthlyDeposits">0 MAD</div>
+                <!-- Stats Cards Grouped -->
+                <div class="stats-card">
+                    <div class="stats-grid">
+                        <div class="stat-item success">
+                            <div class="stat-icon"><i class="fas fa-arrow-down"></i></div>
+                            <div class="stat-content">
+                                <div class="stat-label">Dépôts (ce mois)</div>
+                                <div class="stat-value" id="monthlyDeposits">0 MAD</div>
+                            </div>
+                        </div>
+                        <div class="stat-item danger">
+                            <div class="stat-icon"><i class="fas fa-arrow-up"></i></div>
+                            <div class="stat-content">
+                                <div class="stat-label">Retraits (ce mois)</div>
+                                <div class="stat-value" id="monthlyWithdrawals">0 MAD</div>
+                            </div>
+                        </div>
+                        <div class="stat-item primary">
+                            <div class="stat-icon"><i class="fas fa-exchange-alt"></i></div>
+                            <div class="stat-content">
+                                <div class="stat-label">Total Transactions</div>
+                                <div class="stat-value" id="totalTransactions">0</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="card stats-card">
-                    <h4>Retraits (ce mois)</h4>
-                    <div class="stat-value" id="monthlyWithdrawals">0 MAD</div>
-                </div>
+            </div>
 
-                <div class="card stats-card">
-                    <h4>Transactions Totales</h4>
-                    <div class="stat-value" id="totalTransactions">0</div>
+            <!-- Chart Section -->
+            <div class="card"
+                style="margin-top:20px; padding:25px; border-radius:16px; background:var(--bg-secondary); border:1px solid var(--border-color);">
+                <div class="section-header" style="margin-bottom:20px;">
+                    <h2 style="font-size:1.2rem; color:var(--text-primary);"><i class="fas fa-chart-line"></i> Évolution
+                        du Solde</h2>
+                </div>
+                <div class="chart-container">
+                    <canvas id="balanceChart"></canvas>
                 </div>
             </div>
 
-            <div class="card">
-                <h3>Évolution du Solde</h3>
-                <canvas id="balanceChart"></canvas>
-            </div>
+            <!-- Recent Transactions -->
+            <div class="transactions-section" style="margin-top:30px;">
+                <div class="section-header">
+                    <h2><i class="fas fa-receipt"></i> Transactions Récentes</h2>
+                </div>
 
-            <div class="card">
-                <h3>Transactions Récentes</h3>
-                <div id="recentTransactions" class="transactions-list">
-                    <p class="text-center loading">Chargement des transactions...</p>
+                <div class="transactions-list" id="recentTransactions">
+                    <div class="empty-state">
+                        <i class="fas fa-circle-notch fa-spin"></i>
+                        <p>Chargement des transactions...</p>
+                    </div>
                 </div>
             </div>
-        </main>
-    </div>
+
+        </div>
+    </main>
 
     <!-- Deposit Modal -->
-    <div id="depositModal" class="modal">
+    <div class="modal" id="depositModal">
+        <div class="modal-overlay" onclick="closeModal('depositModal')"></div>
         <div class="modal-content">
-            <span class="close" onclick="closeModal('depositModal')">&times;</span>
-            <h3>Déposer de l'argent</h3>
-            <form id="depositForm">
+            <div class="modal-header">
+                <h2><i class="fas fa-plus-circle"></i> Déposer de l'argent</h2>
+                <button class="btn-close-modal" onclick="closeModal('depositModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <form id="depositForm" style="padding:20px;">
                 <div class="form-group">
-                    <label for="depositAmount">Montant (MAD)</label>
-                    <input 
-                        type="number" 
-                        id="depositAmount" 
-                        required 
-                        min="10" 
-                        max="50000" 
-                        step="0.01"
-                        placeholder="1000">
-                    <small>Min: 10 MAD - Max: 50,000 MAD</small>
+                    <label style="display:block; margin-bottom:8px; font-weight:600;">Montant (MAD)</label>
+                    <input type="number" id="depositAmount" required min="10" max="50000" step="0.01" placeholder="1000"
+                        class="input-field"
+                        style="width:100%; padding:12px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-tertiary); color:var(--text-primary);">
+                    <small style="color:var(--text-tertiary); display:block; margin-top:5px;">Min: 10 MAD - Max: 50,000
+                        MAD</small>
                 </div>
-                <div class="form-group">
-                    <label for="depositDescription">Description (optionnel)</label>
-                    <input 
-                        type="text" 
-                        id="depositDescription" 
-                        maxlength="500"
-                        placeholder="Ex: Salaire mensuel">
+
+                <div class="form-group" style="margin-top:15px;">
+                    <label style="display:block; margin-bottom:8px; font-weight:600;">Description (optionnel)</label>
+                    <input type="text" id="depositDescription" maxlength="500" placeholder="Ex: Salaire mensuel"
+                        class="input-field"
+                        style="width:100%; padding:12px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-tertiary); color:var(--text-primary);">
                 </div>
-                <button type="submit" class="btn btn-primary btn-block">Confirmer le dépôt</button>
+
+                <div class="btn-group" style="margin-top:20px; display:flex; justify-content:flex-end; gap:10px;">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('depositModal')"
+                        style="padding:10px 20px; border-radius:8px; background:transparent; border:1px solid var(--border-color); color:var(--text-primary); cursor:pointer;">Annuler</button>
+                    <button type="submit" class="btn btn-primary"
+                        style="padding:10px 20px; border-radius:8px; background:var(--primary-blue); color:white; border:none; cursor:pointer; font-weight:600;">Confirmer
+                        le dépôt</button>
+                </div>
             </form>
         </div>
     </div>
 
     <!-- Withdraw Modal -->
-    <div id="withdrawModal" class="modal">
+    <div class="modal" id="withdrawModal">
+        <div class="modal-overlay" onclick="closeModal('withdrawModal')"></div>
         <div class="modal-content">
-            <span class="close" onclick="closeModal('withdrawModal')">&times;</span>
-            <h3>Retirer de l'argent</h3>
-            <form id="withdrawForm">
+            <div class="modal-header">
+                <h2><i class="fas fa-minus-circle"></i> Retirer de l'argent</h2>
+                <button class="btn-close-modal" onclick="closeModal('withdrawModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <form id="withdrawForm" style="padding:20px;">
                 <div class="form-group">
-                    <label for="withdrawAmount">Montant (MAD)</label>
-                    <input 
-                        type="number" 
-                        id="withdrawAmount" 
-                        required 
-                        min="10" 
-                        max="10000" 
-                        step="0.01"
-                        placeholder="500">
-                    <small>Min: 10 MAD - Max: 10,000 MAD</small>
+                    <label style="display:block; margin-bottom:8px; font-weight:600;">Montant (MAD)</label>
+                    <input type="number" id="withdrawAmount" required min="10" max="10000" step="0.01" placeholder="500"
+                        class="input-field"
+                        style="width:100%; padding:12px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-tertiary); color:var(--text-primary);">
+                    <small style="color:var(--text-tertiary); display:block; margin-top:5px;">Min: 10 MAD - Max: 10,000
+                        MAD</small>
                 </div>
-                <div class="form-group">
-                    <label for="withdrawDescription">Description (optionnel)</label>
-                    <input 
-                        type="text" 
-                        id="withdrawDescription" 
-                        maxlength="500"
-                        placeholder="Ex: Retrait ATM">
+
+                <div class="form-group" style="margin-top:15px;">
+                    <label style="display:block; margin-bottom:8px; font-weight:600;">Description (optionnel)</label>
+                    <input type="text" id="withdrawDescription" maxlength="500" placeholder="Ex: Retrait ATM"
+                        class="input-field"
+                        style="width:100%; padding:12px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-tertiary); color:var(--text-primary);">
                 </div>
-                <button type="submit" class="btn btn-primary btn-block">Confirmer le retrait</button>
+
+                <div class="btn-group" style="margin-top:20px; display:flex; justify-content:flex-end; gap:10px;">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('withdrawModal')"
+                        style="padding:10px 20px; border-radius:8px; background:transparent; border:1px solid var(--border-color); color:var(--text-primary); cursor:pointer;">Annuler</button>
+                    <button type="submit" class="btn btn-primary"
+                        style="padding:10px 20px; border-radius:8px; background:var(--primary-blue); color:white; border:none; cursor:pointer; font-weight:600;">Confirmer
+                        le retrait</button>
+                </div>
             </form>
         </div>
     </div>
 
-    <script src="../js/api.js"></script>
-    <script src="../js/dashboard.js"></script>
+    <script src="../controller/api.js"></script>
+    <script src="../controller/dashboard.js"></script>
+
+    <script>
+        function toggleTheme() {
+            document.documentElement.classList.toggle('dark-mode');
+            const isDark = document.documentElement.classList.contains('dark-mode');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+
+            const icon = document.querySelector('.theme-toggle i');
+            icon.className = isDark ? 'fas fa-sun' : 'fas fa-moon';
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('theme') || 'dark'; // Default to dark for premium feel
+            if (savedTheme === 'dark') {
+                document.documentElement.classList.add('dark-mode');
+                document.querySelector('.theme-toggle i').className = 'fas fa-sun';
+            }
+        });
+
+        // Helper Modal Functions compatible with new structure
+        function openModal(id) {
+            document.getElementById(id).classList.add('active');
+        }
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+        window.openModal = openModal; // Expose to global if needed by inline handlers
+        window.closeModal = closeModal;
+    </script>
 </body>
+
 </html>

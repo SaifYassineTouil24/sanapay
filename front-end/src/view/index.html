@@ -1,21 +1,21 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="SanaPay – Envoyez, recevez et suivez vos paiements en toute sécurité. Gestion des factures et paiements en une seule interface." />
+  <meta name="description"
+    content="SanaPay – Envoyez, recevez et suivez vos paiements en toute sécurité. Gestion des factures et paiements en une seule interface." />
   <title>SanaPay | Gestion des factures et paiements</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link
-  rel="stylesheet"
-  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
 
 
-  <link rel="stylesheet" href="/front-end/src/css/style.css" />
-  <link rel="icon" type="image/png" href="/front-end/assets/favicon.png" />
+  <link rel="stylesheet" href="../css/style.css" />
+  <link rel="icon" type="image/png" href="../../assets/favicon.png" />
 </head>
 
 <body>
@@ -23,19 +23,19 @@
   <header class="topbar" id="topbar">
     <div class="container nav">
       <a href="index.html" class="brand">
-        <img src="/front-end/assets/logo.png" alt="SanaPay" />
+        <img src="../../assets/logo.png" alt="SanaPay" />
       </a>
 
       <button class="nav-toggle" aria-label="Menu" aria-expanded="false">
         <span></span><span></span><span></span>
       </button>
-     <nav class="nav-links" aria-label="Navigation principale">
-           <a href="#features" id="nav-features" class="nav-link">Fonctionnalités</a>
-           <a href="#about" id="nav-about" class="nav-link">À propos</a>
-           <a href="#help" id="nav-help" class="nav-link">Aide</a>
-           <a href="login.html" id="nav-login" class="btn-outline">Connexion</a>
-           <a href="register.html" id="nav-register" class="btn-solid">Ouvrir un compte</a>
-     </nav>
+      <nav class="nav-links" aria-label="Navigation principale">
+        <a href="#features" id="nav-features" class="nav-link">Fonctionnalités</a>
+        <a href="#about" id="nav-about" class="nav-link">À propos</a>
+        <a href="#help" id="nav-help" class="nav-link">Aide</a>
+        <a href="login.html" id="nav-login" class="btn-outline">Connexion</a>
+        <a href="register.html" id="nav-register" class="btn-solid">Ouvrir un compte</a>
+      </nav>
 
     </div>
   </header>
@@ -54,72 +54,72 @@
           en toute sécurité, depuis une seule interface.
         </p>
         <div class="hero-actions">
-          <a href="register.html" class="btn-main" >Créer un compte</a>
+          <a href="register.html" class="btn-main">Créer un compte</a>
           <a href="#features" class="btn-secondary">Voir les fonctionnalités</a>
         </div>
       </div>
       <div class="hero-right">
         <div class="hero-image-wrapper">
-          <img src="/front-end/assets/Capture.PNG" alt="Interface SanaPay – Paiements sécurisés" loading="eager" />
+          <img src="../../assets/Capture.PNG" alt="Interface SanaPay – Paiements sécurisés" loading="eager" />
         </div>
       </div>
     </section>
-<section class="stats" aria-label="Chiffres clés">
-  <div class="container stats-grid">
+    <section class="stats" aria-label="Chiffres clés">
+      <div class="container stats-grid">
 
-    <div class="stat-item">
-      <i class="fa-solid fa-shield-halved stat-icon"></i>
-      <div class="stat-number">
-        <span class="stat-value" data-stat="100">0</span>
-        <span class="stat-suffix">%</span>
+        <div class="stat-item">
+          <i class="fa-solid fa-shield-halved stat-icon"></i>
+          <div class="stat-number">
+            <span class="stat-value" data-stat="100">0</span>
+            <span class="stat-suffix">%</span>
+          </div>
+          <span class="stat-label">Sécurisé</span>
+        </div>
+
+        <div class="stat-item">
+          <i class="fa-solid fa-clock stat-icon"></i>
+          <div class="stat-number">
+            <span class="stat-value" data-stat="24">0</span>
+            <span class="stat-suffix">/7</span>
+          </div>
+          <span class="stat-label">Disponible</span>
+        </div>
+
+        <div class="stat-item">
+          <i class="fa-solid fa-wallet stat-icon"></i>
+          <div class="stat-number">
+            <span class="stat-value" data-stat="0">0</span>
+            <span class="stat-suffix">€</span>
+          </div>
+          <span class="stat-label">Frais d’ouverture</span>
+        </div>
+
       </div>
-      <span class="stat-label">Sécurisé</span>
-    </div>
+    </section>
 
-    <div class="stat-item">
-      <i class="fa-solid fa-clock stat-icon"></i>
-      <div class="stat-number">
-        <span class="stat-value" data-stat="24">0</span>
-        <span class="stat-suffix">/7</span>
-      </div>
-      <span class="stat-label">Disponible</span>
-    </div>
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const stats = document.querySelectorAll(".stat-value");
 
-    <div class="stat-item">
-      <i class="fa-solid fa-wallet stat-icon"></i>
-      <div class="stat-number">
-        <span class="stat-value" data-stat="0">0</span>
-        <span class="stat-suffix">€</span>
-      </div>
-      <span class="stat-label">Frais d’ouverture</span>
-    </div>
+        stats.forEach(stat => {
+          const target = +stat.dataset.stat;
+          const duration = 1200;
+          const stepTime = Math.max(Math.floor(duration / target), 20);
 
-  </div>
-</section>
+          let current = 0;
 
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-  const stats = document.querySelectorAll(".stat-value");
+          const timer = setInterval(() => {
+            current++;
+            stat.textContent = current;
 
-  stats.forEach(stat => {
-    const target = +stat.dataset.stat;
-    const duration = 1200;
-    const stepTime = Math.max(Math.floor(duration / target), 20);
-
-    let current = 0;
-
-    const timer = setInterval(() => {
-      current++;
-      stat.textContent = current;
-
-      if (current >= target) {
-        stat.textContent = target;
-        clearInterval(timer);
-      }
-    }, stepTime);
-  });
-});
-</script>
+            if (current >= target) {
+              stat.textContent = target;
+              clearInterval(timer);
+            }
+          }, stepTime);
+        });
+      });
+    </script>
 
     <section id="features" class="features">
       <div class="container">
@@ -128,7 +128,8 @@ document.addEventListener("DOMContentLoaded", () => {
         <div class="features-grid">
           <article class="feature-card">
             <div class="feature-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round">
                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
                 <polyline points="14 2 14 8 20 8" />
                 <line x1="16" y1="13" x2="8" y2="13" />
@@ -141,7 +142,8 @@ document.addEventListener("DOMContentLoaded", () => {
           </article>
           <article class="feature-card">
             <div class="feature-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round">
                 <rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
                 <line x1="1" y1="10" x2="23" y2="10" />
                 <path d="M12 15h.01" />
@@ -154,7 +156,8 @@ document.addEventListener("DOMContentLoaded", () => {
           </article>
           <article class="feature-card">
             <div class="feature-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round">
                 <line x1="18" y1="20" x2="18" y2="10" />
                 <line x1="12" y1="20" x2="12" y2="4" />
                 <line x1="6" y1="20" x2="6" y2="14" />
@@ -211,7 +214,7 @@ document.addEventListener("DOMContentLoaded", () => {
         inscrivez-vous gratuitement.
       </p>
       <div class="qr">
-        <img src="/front-end/assets/qrcode.png" alt="QR Code – Télécharger SanaPay" />
+        <img src="../../assets/qrcode.png" alt="QR Code – Télécharger SanaPay" />
         <a href="login.html" class="qr-text">Télécharger l’application</a>
       </div>
     </section>
@@ -226,65 +229,66 @@ document.addEventListener("DOMContentLoaded", () => {
   </main>
 
   <footer class="footer">
-  <div class="container footer-grid">
+    <div class="container footer-grid">
 
-    <!-- Brand / Description -->
-    <div class="footer-col footer-brand">
-      <img src="/front-end/assets/logo.png" alt="SanaPay" class="footer-logo" />
-      <p>
-        SanaPay est une plateforme de paiement moderne qui simplifie
-        vos transactions quotidiennes en toute sécurité.
-      </p>
+      <!-- Brand / Description -->
+      <div class="footer-col footer-brand">
+        <img src="../../assets/logo.png" alt="SanaPay" class="footer-logo" />
+        <p>
+          SanaPay est une plateforme de paiement moderne qui simplifie
+          vos transactions quotidiennes en toute sécurité.
+        </p>
+      </div>
+
+      <!-- Links -->
+      <div class="footer-col">
+        <h4>Nos solutions</h4>
+        <ul>
+          <li><a href="#features">Fonctionnalités</a></li>
+          <li><a href="#pricing">Tarification</a></li>
+          <li><a href="#network">Réseau</a></li>
+          <li><a href="#news">Actualités</a></li>
+        </ul>
+      </div>
+
+      <!-- Support -->
+      <div class="footer-col">
+        <h4>Espace client</h4>
+        <ul>
+          <li><a href="login.html">Connexion</a></li>
+          <li><a href="register.html">Inscription</a></li>
+          <li><a href="#help">Centre d’aide</a></li>
+          <li><a href="#privacy">Politique de confidentialité</a></li>
+        </ul>
+      </div>
+
+      <!-- Contact -->
+      <div class="footer-col">
+        <h4>Contactez-nous</h4>
+        <ul class="footer-contact">
+          <li>📍 Casablanca, Maroc</li>
+          <li>📞 +212 5 22 00 00 00</li>
+          <li>✉️ contact@sanapay.com</li>
+        </ul>
+      </div>
+
     </div>
 
-    <!-- Links -->
-    <div class="footer-col">
-      <h4>Nos solutions</h4>
-      <ul>
-        <li><a href="#features">Fonctionnalités</a></li>
-        <li><a href="#pricing">Tarification</a></li>
-        <li><a href="#network">Réseau</a></li>
-        <li><a href="#news">Actualités</a></li>
-      </ul>
+    <!-- Social + Copyright -->
+    <div class="footer-bottom">
+      <div class="footer-social">
+        <a href="#" aria-label="Facebook">f</a>
+        <a href="#" aria-label="LinkedIn">in</a>
+        <a href="#" aria-label="X">X</a>
+        <a href="#" aria-label="Instagram">⌁</a>
+      </div>
+      <p>© 2026 SanaPay – Tous droits réservés</p>
     </div>
+  </footer>
 
-    <!-- Support -->
-    <div class="footer-col">
-      <h4>Espace client</h4>
-      <ul>
-        <li><a href="login.html">Connexion</a></li>
-        <li><a href="register.html">Inscription</a></li>
-        <li><a href="#help">Centre d’aide</a></li>
-        <li><a href="#privacy">Politique de confidentialité</a></li>
-      </ul>
-    </div>
+  <script type="module" src="../controller/index.js"></script>
 
-    <!-- Contact -->
-    <div class="footer-col">
-      <h4>Contactez-nous</h4>
-      <ul class="footer-contact">
-        <li>📍 Casablanca, Maroc</li>
-        <li>📞 +212 5 22 00 00 00</li>
-        <li>✉️ contact@sanapay.com</li>
-      </ul>
-    </div>
-
-  </div>
-
-  <!-- Social + Copyright -->
-  <div class="footer-bottom">
-    <div class="footer-social">
-      <a href="#" aria-label="Facebook">f</a>
-      <a href="#" aria-label="LinkedIn">in</a>
-      <a href="#" aria-label="X">X</a>
-      <a href="#" aria-label="Instagram">⌁</a>
-    </div>
-    <p>© 2026 SanaPay – Tous droits réservés</p>
-  </div>
-</footer>
-
-  <script type="module" src="/front-end/src/controller/index.js"></script>
- 
 
 </body>
+
 </html>

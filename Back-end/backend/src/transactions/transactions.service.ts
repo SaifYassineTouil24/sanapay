@@ -17,7 +17,7 @@ export class TransactionsService {
     @InjectRepository(Transaction)
     private readonly transactionRepository: Repository<Transaction>,
     private readonly ewalletService: EwalletService,
-  ) {}
+  ) { }
 
   async deposit(userId: number, depositDto: DepositDto) {
     const { amount, description } = depositDto;
@@ -26,7 +26,7 @@ export class TransactionsService {
 
     return {
       message: 'Deposit successful',
-      balance: parseFloat(wallet.balance),
+      balance: wallet.balance,
     };
   }
 
@@ -37,7 +37,7 @@ export class TransactionsService {
 
     return {
       message: 'Withdrawal successful',
-      balance: parseFloat(wallet.balance),
+      balance: wallet.balance,
     };
   }
 
@@ -55,16 +55,12 @@ export class TransactionsService {
       transactions: transactions.map((t) => ({
         id: t.id,
         type: t.type,
-        amount: parseFloat(t.amount),
+        amount: t.amount,
         status: t.status,
         description: t.description,
         reference: t.reference,
-        balanceBefore: t.balanceBefore
-          ? parseFloat(t.balanceBefore)
-          : null,
-        balanceAfter: t.balanceAfter
-          ? parseFloat(t.balanceAfter)
-          : null,
+        balanceBefore: t.balanceBefore,
+        balanceAfter: t.balanceAfter,
         createdAt: t.createdAt,
       })),
     };
@@ -78,9 +74,9 @@ export class TransactionsService {
     });
 
     return {
-      currentBalance: parseFloat(wallet.balance),
-      totalDeposited: parseFloat(wallet.totalDeposited),
-      totalWithdrawn: parseFloat(wallet.totalWithdrawn),
+      currentBalance: wallet.balance,
+      totalDeposited: wallet.totalDeposited,
+      totalWithdrawn: wallet.totalWithdrawn,
       totalTransactions,
     };
   }
@@ -88,49 +84,47 @@ export class TransactionsService {
 
 
   async transfer(userId: number, dto: TransferDto) {
-  const { walletNumber, amount, description } = dto;
+    const { walletNumber, amount, description } = dto;
 
-  // Wallet source
-  const senderWallet = await this.ewalletService.getWalletByUserId(userId);
-  const senderBalance = parseFloat(senderWallet.balance);
+    // Wallet source
+    const senderWallet = await this.ewalletService.getWalletByUserId(userId);
+    const senderBalance = senderWallet.balance;
 
-  if (senderBalance < amount) {
-    throw new BadRequestException('Solde insuffisant');
+    if (senderBalance < amount) {
+      throw new BadRequestException('Solde insuffisant');
+    }
+
+    // Wallet destinataire
+    const receiverWallet =
+      await this.ewalletService.getWalletByNumber(walletNumber);
+
+    // Mise à jour soldes
+    senderWallet.balance = senderBalance - amount;
+    receiverWallet.balance = receiverWallet.balance + amount;
+
+    // ✅ sauvegarde via EwalletService
+    await this.ewalletService.saveWallet(senderWallet);
+    await this.ewalletService.saveWallet(receiverWallet);
+
+    // Transaction
+    const tx = this.transactionRepository.create({
+      type: TransactionType.TRANSFER,
+      amount: amount,
+      status: TransactionStatus.COMPLETED,
+      description: description || 'Transfer',
+      reference: `TRF-${Date.now()}`,
+      walletId: senderWallet.id,
+      balanceBefore: senderBalance,
+      balanceAfter: senderBalance - amount,
+    });
+
+    await this.transactionRepository.save(tx);
+
+    return {
+      message: 'Transfer effectué avec succès',
+      balanceAfter: senderWallet.balance,
+    };
   }
-
-  // Wallet destinataire
-  const receiverWallet =
-    await this.ewalletService.getWalletByNumber(walletNumber);
-
-  // Mise à jour soldes
-  senderWallet.balance = (senderBalance - amount).toFixed(2);
-  receiverWallet.balance = (
-    parseFloat(receiverWallet.balance) + amount
-  ).toFixed(2);
-
-  // ✅ sauvegarde via EwalletService
-  await this.ewalletService.saveWallet(senderWallet);
-  await this.ewalletService.saveWallet(receiverWallet);
-
-  // Transaction
-  const tx = this.transactionRepository.create({
-  type: TransactionType.TRANSFER,
-  amount: amount.toFixed(2),
-  status: TransactionStatus.COMPLETED,
-  description: description || 'Transfer',
-  reference: `TRF-${Date.now()}`,
-  walletId: senderWallet.id,
-  balanceBefore: senderBalance.toFixed(2),
-  balanceAfter: (senderBalance - amount).toFixed(2),
-});
-
-await this.transactionRepository.save(tx);
-
-  return {
-    message: 'Transfer effectué avec succès',
-    balanceAfter: senderWallet.balance,
-  };
-}
 
 
 }

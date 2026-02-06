@@ -36,13 +36,13 @@ export class Bill {
   @Column({ length: 200 })
   title: string;
 
-  @Column({ type: 'decimal', precision: 12, scale: 2 })
+  @Column({ type: 'real' })
   amount: number;
 
-  @Column({ type: 'enum', enum: BillStatus, default: BillStatus.PENDING })
+  @Column({ type: 'simple-enum', enum: BillStatus, default: BillStatus.PENDING })
   status: BillStatus;
 
-  @Column({ type: 'enum', enum: BillCategory })
+  @Column({ type: 'simple-enum', enum: BillCategory })
   category: BillCategory;
 
   @Column({ type: 'date', nullable: true, name: 'dueDate' })
@@ -54,7 +54,7 @@ export class Bill {
   @Column({ length: 100, nullable: true, name: 'accountNumber' })
   accountNumber: string;
 
-  @Column({ type: 'timestamp', nullable: true, name: 'paidAt' })
+  @Column({ type: 'datetime', nullable: true, name: 'paidAt' })
   paidAt: Date;
 
   @Column({ length: 100, nullable: true, name: 'transactionId' })

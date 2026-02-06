@@ -1,215 +1,415 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" class="dark-mode">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Factures - SanaPay</title>
-    <link rel="stylesheet" href="/front-end/src/css/style1.css">
-    <link rel="icon" type="image/png" href="/front-end/assets/favicon.png" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="SanaPay – Gérez vos factures" />
+    <title>SanaPay | Mes Factures</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+    <!-- Use Account Dark Theme -->
+    <link rel="stylesheet" href="../css/account-dark.css" />
+    <link rel="stylesheet" href="../css/ui-components.css" />
+
+    <style>
+        /* Specific overrides for Bills Page to fit into Account Theme */
+        .bills-controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .search-bills {
+            flex: 1;
+            min-width: 250px;
+            position: relative;
+        }
+
+        .search-bills input {
+            width: 100%;
+            padding: 12px 16px 12px 45px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            color: var(--text-primary);
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        .search-bills input:focus {
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+
+        .search-bills i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-tertiary);
+        }
+
+        .filter-select {
+            padding: 12px 20px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            color: var(--text-primary);
+            cursor: pointer;
+            outline: none;
+        }
+
+        .bill-grid-item {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            margin-bottom: 16px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .bill-grid-item:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--primary-blue);
+        }
+
+        .bill-grid-item.paid {
+            border-left: 4px solid var(--success-color);
+        }
+
+        .bill-grid-item.pending {
+            border-left: 4px solid var(--warning-color);
+        }
+
+        .bill-grid-item.overdue {
+            border-left: 4px solid var(--danger-color);
+        }
+
+        .bill-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .bill-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            color: white;
+            background: var(--bg-tertiary);
+        }
+
+        .bill-info h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+            color: var(--text-primary);
+        }
+
+        .bill-info p {
+            font-size: 0.9rem;
+            color: var(--text-tertiary);
+        }
+
+        .bill-amount-tag {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: var(--text-primary);
+        }
+
+        .bill-status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .bill-status-badge.paid {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--success-color);
+        }
+
+        .bill-status-badge.pending {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--warning-color);
+        }
+
+        .bill-status-badge.overdue {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--danger-color);
+        }
+
+        .bill-actions-row {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid var(--border-color);
+            justify-content: flex-end;
+        }
+
+        /* Floating Add Button for Mobile/Desktop */
+        .fab-add {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: var(--primary-blue);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: var(--shadow-xl);
+            cursor: pointer;
+            transition: all 0.3s;
+            z-index: 900;
+        }
+
+        .fab-add:hover {
+            transform: scale(1.1);
+            background: var(--primary-dark);
+        }
+    </style>
 </head>
+
 <body>
-    <div class="app-container">
-        <aside class="sidebar">
-            <div class="login-logo">
-                <img src="/front-end/assets/logo.png" alt="Logo SanaPay">
-            </div>
-            <nav class="sidebar-nav">
-                <a href="dashboard.html">📊 Dashboard</a>
-                <a href="bills.html" class="active">📝 Factures</a>
-                <a href="analytics.html">📈 Analytics</a>
-                <a href="account.html">👤 Profil</a>
-            </nav>
-            <div class="sidebar-footer">
-                <button onclick="logout()" class="btn btn-outline btn-block">Déconnexion</button>
-            </div>
-        </aside>
+    <script src="../controller/guards.js"></script>
 
-        <main class="main-content">
-            <div class="bills-header">
-                <h1>Gestion des Factures</h1>
-                <button onclick="openCreateBillModal()" class="btn btn-primary">+ Nouvelle Facture</button>
-            </div>
+    <!-- Logo Header -->
+    <header class="logo-header">
+        <div class="container">
+            <a href="index.html" class="brand-logo" aria-label="Accueil SanaPay">
+                <div class="logo-icon">S</div>
+                <span class="logo-text">SanaPay</span>
+            </a>
 
-            <div class="bills-filters">
-                <div class="form-group" style="margin-bottom: 0;">
-                    <select id="statusFilter" onchange="filterBills()">
-                        <option value="">Tous les statuts</option>
-                        <option value="PENDING">En attente</option>
-                        <option value="PAID">Payées</option>
-                        <option value="OVERDUE">En retard</option>
-                        <option value="CANCELLED">Annulées</option>
-                    </select>
+            <div class="header-right">
+                <button class="theme-toggle" onclick="toggleTheme()" aria-label="Changer de thème">
+                    <i class="fas fa-moon"></i>
+                </button>
+
+                <!-- Back to Dashboard Link -->
+                <a href="dashboard.html" class="btn-logout-header"
+                    style="background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-color);">
+                    <i class="fas fa-arrow-left"></i>
+                    <span>Dashboard</span>
+                </a>
+
+                <button class="btn-logout-header" onclick="logout()" aria-label="Déconnexion">
+                    <i class="fas fa-sign-out-alt" aria-hidden="true"></i>
+                    <span>Déconnexion</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="dashboard-wrapper">
+        <div class="dashboard-container">
+
+            <!-- Page Header -->
+            <div class="page-header" style="padding: 30px;">
+                <div class="page-header-content">
+                    <div class="user-avatar-section">
+                        <div class="user-avatar" style="width: 80px; height: 80px;">
+                            <div
+                                style="width:100%; height:100%; background: linear-gradient(135deg, #6366f1, #8b5cf6); display:flex; align-items:center; justify-content:center; font-size: 2rem; color:white;">
+                                <i class="fas fa-file-invoice"></i>
+                            </div>
+                        </div>
+                        <div class="user-info-text">
+                            <h1 style="font-size: 1.8rem; margin-bottom: 5px;">Mes Factures</h1>
+                            <p style="margin-bottom: 0;">Gérez et payez vos factures en un seul endroit</p>
+                        </div>
+                    </div>
+
+                    <div class="header-actions">
+                        <button class="btn-header" style="background: white; color: var(--primary-dark);"
+                            onclick="openCreateBillModal()">
+                            <i class="fas fa-plus"></i>
+                            Nouvelle Facture
+                        </button>
+                    </div>
                 </div>
-                <div class="form-group" style="margin-bottom: 0;">
-                    <select id="categoryFilter" onchange="filterBills()">
-                        <option value="">Toutes les catégories</option>
-                        <option value="ELECTRICITY">Électricité</option>
-                        <option value="WATER">Eau</option>
-                        <option value="INTERNET">Internet</option>
-                        <option value="PHONE">Téléphone</option>
-                        <option value="GAS">Gaz</option>
-                        <option value="INSURANCE">Assurance</option>
-                        <option value="SUBSCRIPTION">Abonnement</option>
-                        <option value="RENT">Loyer</option>
-                        <option value="OTHER">Autre</option>
-                    </select>
+            </div>
+
+            <!-- Filters & Controls -->
+            <div class="bills-controls">
+                <div class="search-bills">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchInput" placeholder="Rechercher une facture..." onkeyup="filterBills()">
+                </div>
+
+                <select id="statusFilter" class="filter-select" onchange="filterBills()">
+                    <option value="">Tous les statuts</option>
+                    <option value="PENDING">En attente</option>
+                    <option value="PAID">Payée</option>
+                    <option value="OVERDUE">En retard</option>
+                </select>
+
+                <select id="categoryFilter" class="filter-select" onchange="filterBills()">
+                    <option value="">Toutes les catégories</option>
+                    <option value="ELECTRICITY">Électricité</option>
+                    <option value="WATER">Eau</option>
+                    <option value="INTERNET">Internet</option>
+                    <option value="PHONE">Téléphone</option>
+                    <option value="RENT">Loyer</option>
+                    <option value="OTHER">Autre</option>
+                </select>
+            </div>
+
+            <!-- Bills List Container -->
+            <div id="billsContainer">
+                <div class="empty-state" style="text-align: center; padding: 50px; color: var(--text-tertiary);">
+                    <i class="fas fa-circle-notch fa-spin" style="font-size: 2rem; margin-bottom: 20px;"></i>
+                    <p>Chargement de vos factures...</p>
                 </div>
             </div>
 
-            <div id="billsContainer" class="bills-grid">
-                <p class="text-center loading">Chargement des factures...</p>
-            </div>
-        </main>
-    </div>
+        </div>
+    </main>
 
     <!-- Create Bill Modal -->
-    <div id="createBillModal" class="modal">
+    <div class="modal" id="createBillModal">
+        <div class="modal-overlay" onclick="closeModal('createBillModal')"></div>
         <div class="modal-content">
-            <span class="close" onclick="closeModal('createBillModal')">&times;</span>
-            <h3>Nouvelle Facture</h3>
-            <form id="createBillForm">
-                <div class="form-group">
-                    <label for="billTitle">Titre *</label>
-                    <input 
-                        type="text" 
-                        id="billTitle" 
-                        required 
-                        minlength="3"
-                        maxlength="200"
-                        placeholder="Ex: Facture électricité - Janvier 2026">
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="billAmount">Montant (MAD) *</label>
-                        <input 
-                            type="number" 
-                            id="billAmount" 
-                            required 
-                            min="1" 
-                            max="100000"
-                            step="0.01"
-                            placeholder="450.50">
-                    </div>
-                    <div class="form-group">
-                        <label for="billCategory">Catégorie *</label>
-                        <select id="billCategory" required>
-                            <option value="">Choisir...</option>
-                            <option value="ELECTRICITY">⚡ Électricité</option>
-                            <option value="WATER">💧 Eau</option>
-                            <option value="INTERNET">🌐 Internet</option>
-                            <option value="PHONE">📱 Téléphone</option>
-                            <option value="GAS">🔥 Gaz</option>
-                            <option value="INSURANCE">🛡️ Assurance</option>
-                            <option value="SUBSCRIPTION">📺 Abonnement</option>
-                            <option value="RENT">🏠 Loyer</option>
-                            <option value="OTHER">📋 Autre</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="billDueDate">Date d'échéance</label>
-                    <input type="date" id="billDueDate">
-                </div>
-                <div class="form-group">
-                    <label for="billAccountNumber">Numéro de compte</label>
-                    <input 
-                        type="text" 
-                        id="billAccountNumber" 
-                        maxlength="100"
-                        placeholder="Ex: ACC-123456">
-                </div>
-                <div class="form-group">
-                    <label for="billNotes">Notes</label>
-                    <textarea 
-                        id="billNotes" 
-                        rows="3" 
-                        maxlength="500"
-                        placeholder="Notes additionnelles..."></textarea>
-                </div>
-                <button type="submit" class="btn btn-primary btn-block">Créer la facture</button>
-            </form>
-        </div>
-    </div>
+            <div class="modal-header">
+                <h2><i class="fas fa-plus-circle"></i> Nouvelle Facture</h2>
+                <button class="btn-close-modal" onclick="closeModal('createBillModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
 
-    <!-- Edit Bill Modal -->
-    <div id="editBillModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeModal('editBillModal')">&times;</span>
-            <h3>Modifier la Facture</h3>
-            <form id="editBillForm">
-                <input type="hidden" id="editBillId">
-                <div class="form-group">
-                    <label for="editBillTitle">Titre *</label>
-                    <input 
-                        type="text" 
-                        id="editBillTitle" 
-                        required 
-                        minlength="3"
-                        maxlength="200">
+            <form id="createBillForm" style="padding: 20px;">
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label style="display:block; margin-bottom:5px; font-weight:600;">Titre</label>
+                    <input type="text" id="billTitle" required placeholder="Ex: Facture d'électricité"
+                        style="width:100%; padding:10px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-tertiary); color:var(--text-primary);">
                 </div>
-                <div class="form-row">
+
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
                     <div class="form-group">
-                        <label for="editBillAmount">Montant (MAD) *</label>
-                        <input 
-                            type="number" 
-                            id="editBillAmount" 
-                            required 
-                            min="1" 
-                            max="100000"
-                            step="0.01">
+                        <label style="display:block; margin-bottom:5px; font-weight:600;">Montant (MAD)</label>
+                        <input type="number" id="billAmount" required min="1" step="0.01" placeholder="0.00"
+                            style="width:100%; padding:10px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-tertiary); color:var(--text-primary);">
                     </div>
                     <div class="form-group">
-                        <label for="editBillCategory">Catégorie *</label>
-                        <select id="editBillCategory" required>
-                            <option value="ELECTRICITY">⚡ Électricité</option>
-                            <option value="WATER">💧 Eau</option>
-                            <option value="INTERNET">🌐 Internet</option>
-                            <option value="PHONE">📱 Téléphone</option>
-                            <option value="GAS">🔥 Gaz</option>
-                            <option value="INSURANCE">🛡️ Assurance</option>
-                            <option value="SUBSCRIPTION">📺 Abonnement</option>
-                            <option value="RENT">🏠 Loyer</option>
-                            <option value="OTHER">📋 Autre</option>
+                        <label style="display:block; margin-bottom:5px; font-weight:600;">Catégorie</label>
+                        <select id="billCategory" required
+                            style="width:100%; padding:10px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-tertiary); color:var(--text-primary);">
+                            <option value="ELECTRICITY">Électricité</option>
+                            <option value="WATER">Eau</option>
+                            <option value="INTERNET">Internet</option>
+                            <option value="PHONE">Téléphone</option>
+                            <option value="GAS">Gaz</option>
+                            <option value="INSURANCE">Assurance</option>
+                            <option value="SUBSCRIPTION">Abonnement</option>
+                            <option value="RENT">Loyer</option>
+                            <option value="OTHER">Autre</option>
                         </select>
                     </div>
                 </div>
-                <div class="form-group">
-                    <label for="editBillDueDate">Date d'échéance</label>
-                    <input type="date" id="editBillDueDate">
+
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label style="display:block; margin-bottom:5px; font-weight:600;">Date d'échéance</label>
+                    <input type="date" id="billDueDate"
+                        style="width:100%; padding:10px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-tertiary); color:var(--text-primary);">
                 </div>
-                <div class="form-group">
-                    <label for="editBillAccountNumber">Numéro de compte</label>
-                    <input 
-                        type="text" 
-                        id="editBillAccountNumber" 
-                        maxlength="100">
+
+                <div class="btn-group" style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('createBillModal')"
+                        style="padding:10px 20px; border-radius:8px; border:1px solid var(--border-color); background:transparent; color:var(--text-primary); cursor:pointer;">
+                        Annuler
+                    </button>
+                    <button type="submit" class="btn btn-primary"
+                        style="padding:10px 20px; border-radius:8px; background:var(--primary-blue); color:white; border:none; font-weight:600; cursor:pointer;">
+                        Créer la facture
+                    </button>
                 </div>
-                <div class="form-group">
-                    <label for="editBillNotes">Notes</label>
-                    <textarea 
-                        id="editBillNotes" 
-                        rows="3" 
-                        maxlength="500"></textarea>
-                </div>
-                <button type="submit" class="btn btn-primary btn-block">Sauvegarder</button>
             </form>
         </div>
     </div>
 
     <!-- Pay Bill Modal -->
-    <div id="payBillModal" class="modal">
+    <div class="modal" id="payBillModal">
+        <div class="modal-overlay" onclick="closeModal('payBillModal')"></div>
         <div class="modal-content">
-            <span class="close" onclick="closeModal('payBillModal')">&times;</span>
-            <h3>Payer la Facture</h3>
-            <div id="payBillInfo"></div>
-            <div style="margin-top: 1.5rem;">
-                <button onclick="confirmPayBill()" class="btn btn-success btn-block">Confirmer le paiement</button>
-                <button onclick="closeModal('payBillModal')" class="btn btn-outline btn-block" style="margin-top: 0.5rem;">Annuler</button>
+            <div class="modal-header">
+                <h2><i class="fas fa-credit-card"></i> Payer la facture</h2>
+                <button class="btn-close-modal" onclick="closeModal('payBillModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <div style="padding: 25px; text-align: center;">
+                <div id="payBillInfo"
+                    style="margin-bottom: 25px; background: var(--bg-tertiary); padding: 20px; border-radius: 12px;">
+                </div>
+
+                <button onclick="confirmPayBill()" class="btn btn-primary"
+                    style="width: 100%; padding: 15px; border-radius: 12px; background: var(--success-color); border: none; font-size: 1.1rem; font-weight: 700; color: white; cursor: pointer;">
+                    <i class="fas fa-check-circle"></i> Confirmer le paiement
+                </button>
             </div>
         </div>
     </div>
 
-    <script src="/front-end/src/controller/api.js"></script>
-    <script src="/front-end/src/controller/bills.js"></script>
+    <!-- Floating Action Button -->
+    <div class="fab-add" onclick="openCreateBillModal()">
+        <i class="fas fa-plus"></i>
+    </div>
+
+    <script src="../controller/api.js"></script>
+    <script src="../controller/bills.js"></script>
+
+    <script>
+        // Theme toggle function (reused from account.html)
+        function toggleTheme() {
+            document.documentElement.classList.toggle('dark-mode');
+            const isDark = document.documentElement.classList.contains('dark-mode');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+
+            const icon = document.querySelector('.theme-toggle i');
+            icon.className = isDark ? 'fas fa-sun' : 'fas fa-moon';
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            if (savedTheme === 'dark') {
+                document.documentElement.classList.add('dark-mode');
+                document.querySelector('.theme-toggle i').className = 'fas fa-sun';
+            }
+        });
+
+        // Helper functions for modals
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        function openCreateBillModal() {
+            document.getElementById('createBillModal').classList.add('active');
+        }
+    </script>
 </body>
+
 </html>

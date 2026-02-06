@@ -23,24 +23,24 @@ export class Ewallet {
   @Column({ unique: true })
   walletNumber: string;
 
-  @Column({ type: 'decimal', precision: 12, scale: 2, default: '0' })
-  balance: string;
+  @Column({ type: 'real', default: 0 })
+  balance: number;
 
   @Column({ default: 'MAD' })
   currency: string;
 
   @Column({
-    type: 'enum',
+    type: 'simple-enum',
     enum: WalletStatus,
     default: WalletStatus.ACTIVE,
   })
   status: WalletStatus;
 
-  @Column({ type: 'decimal', precision: 12, scale: 2, default: '0' })
-  totalDeposited: string;
+  @Column({ type: 'real', default: 0 })
+  totalDeposited: number;
 
-  @Column({ type: 'decimal', precision: 12, scale: 2, default: '0' })
-  totalWithdrawn: string;
+  @Column({ type: 'real', default: 0 })
+  totalWithdrawn: number;
 
   @Column()
   userId: number;
